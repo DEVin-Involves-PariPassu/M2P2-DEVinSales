@@ -24,8 +24,6 @@ create table usuario_feature(
 	constraint fk_us_ft_feature foreign key (id_feature) references feature(id)
 );
 
-select  * from usuario ;
-
 insert into feature (nome_feature) values 
 	('usuario'),
 	('estado'),
