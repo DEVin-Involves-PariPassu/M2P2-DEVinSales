@@ -3,6 +3,7 @@ package br.com.senai.p2m02.devinsales.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity(name = "usuario")
@@ -78,5 +79,26 @@ public class UserEntity {
                 ", dtNascimento=" + dtNascimento +
                 ", features=" + userFeatureEntities +
                 '}';
+    }
+
+    public boolean canRead(String feature) {
+        Optional<UserFeatureEntity> featureInfo = getFeatureInfo(feature);
+        if (featureInfo.isEmpty())
+            return false;
+        return featureInfo.get().getRead();
+    }
+
+    public boolean canWrite(String feature) {
+        Optional<UserFeatureEntity> featureInfo = getFeatureInfo(feature);
+        if (featureInfo.isEmpty())
+            return false;
+        return featureInfo.get().getWrite();
+    }
+
+    private Optional<UserFeatureEntity> getFeatureInfo(String feature) {
+        Optional<UserFeatureEntity> featureInfo = getUserFeatureEntities().stream()
+                .filter(userFeatureEntity -> feature.equalsIgnoreCase(userFeatureEntity.getFeature().getNomeFeature()))
+                .findFirst();
+        return featureInfo;
     }
 }
