@@ -1,4 +1,4 @@
-package br.com.senai.p2m02.devinsales.model.configuration;
+package br.com.senai.p2m02.devinsales.configuration;
 
 import br.com.senai.p2m02.devinsales.interceptor.SecurityInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
