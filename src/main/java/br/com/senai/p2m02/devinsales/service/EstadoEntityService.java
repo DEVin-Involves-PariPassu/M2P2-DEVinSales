@@ -19,7 +19,9 @@ public class EstadoEntityService {
 
     @Transactional
     public List<EstadoEntity> listar(String nome, UserEntity usuario){
-
+        if(nome==null){
+            return (List<EstadoEntity>) repository.findAll();
+        }
         return repository.findAll(Specification.where(
                 SpecificationsEstadoEntity.nome(nome)
         ));
