@@ -3,6 +3,8 @@
 
 .idea
 
+src/main/resources/application.properties
+
 # User-specific stuff
 .idea/misc.xml
 .idea/encodings.xml
