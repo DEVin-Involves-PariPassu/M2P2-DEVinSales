@@ -5,7 +5,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class SpecificationsEstadoEntity {
     public static Specification<EstadoEntity> nome(String nome){
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("nome"), "%" + nome + "%");
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("nome"), "%" + nome + "%");
     }
 }
