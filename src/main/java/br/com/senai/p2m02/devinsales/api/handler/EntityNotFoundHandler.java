@@ -1,4 +1,4 @@
-package br.com.senai.p2m02.devinsales.controller.handler;
+package br.com.senai.p2m02.devinsales.api.handler;
 
 import br.com.senai.p2m02.devinsales.dto.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
