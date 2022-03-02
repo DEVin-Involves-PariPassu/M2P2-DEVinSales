@@ -12,6 +12,9 @@ public class EstadoEntity {
 
     private String nome;
 
+    @Enumerated(value = EnumType.STRING)
+    private SiglaEstado sigla;
+
     public Long getId() {
         return id;
     }
@@ -26,5 +29,13 @@ public class EstadoEntity {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public SiglaEstado getSigla() {
+        return sigla;
+    }
+
+    public void setSigla(SiglaEstado sigla) {
+        this.sigla = sigla;
     }
 }
