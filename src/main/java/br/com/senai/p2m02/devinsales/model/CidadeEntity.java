@@ -10,7 +10,7 @@ public class CidadeEntity {
     @SequenceGenerator(name = "cidadeger", sequenceName = "cidade_id_seq", allocationSize = 1)
     private Long id;
 
-    private String name;
+    private String nome;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_estado", referencedColumnName = "id")
@@ -24,12 +24,12 @@ public class CidadeEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNome(String name) {
+        this.nome = nome;
     }
 
     public EstadoEntity getEstado() {
