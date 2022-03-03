@@ -3,6 +3,7 @@ package br.com.senai.p2m02.devinsales.model;
 import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 public class UserFeatureId implements Serializable {
@@ -31,5 +32,18 @@ public class UserFeatureId implements Serializable {
                 "idUsuario=" + idUsuario +
                 ", idFeature=" + idFeature +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserFeatureId that = (UserFeatureId) o;
+        return idUsuario.equals(that.idUsuario) && idFeature.equals(that.idFeature);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idUsuario, idFeature);
     }
 }

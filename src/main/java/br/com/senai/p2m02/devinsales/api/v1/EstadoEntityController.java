@@ -20,10 +20,10 @@ private EstadoEntityService service;
 @GetMapping
 public ResponseEntity<List<EstadoEntity>> get(
         @RequestParam(required = false) String nome,
-        @RequestAttribute("loggedUser") UserEntity loggedUser){
+        @RequestAttribute("loggedUser") UserEntity loggedUser)
+{
     List<EstadoEntity> estadoEntities = service.listar(nome, loggedUser);
     return ResponseEntity.ok(estadoEntities);
-
 }
 
 }
