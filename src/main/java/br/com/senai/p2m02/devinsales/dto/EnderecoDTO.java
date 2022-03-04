@@ -9,6 +9,9 @@ public class EnderecoDTO {
     @NotNull(message = "Id da cidade é requerido")
     private Long cidadeId;
 
+    @NotNull(message = "Id do estado é requerido")
+    private Long estadoId;
+
     @NotNull(message = "Nome da rua é requerido")
     private String rua;
 
@@ -55,5 +58,13 @@ public class EnderecoDTO {
 
     public void setComplemento(String complemento) {
         this.complemento = complemento;
+    }
+
+    public Long getEstadoId() {
+        return estadoId;
+    }
+
+    public void setEstadoId(Long estadoId) {
+        this.estadoId = estadoId;
     }
 }
