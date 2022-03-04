@@ -38,6 +38,21 @@ public ResponseEntity<List<EstadoEntity>> get(
     return ResponseEntity.ok(estadoEntities);
 }
 
+@GetMapping("/{id}")
+public ResponseEntity<EstadoEntity> getPorId(
+        @PathVariable long id,
+        @RequestAttribute("loggedUser") UserEntity loggedUser
+){
+    if(!loggedUser.canRead("estado")){
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+    EstadoEntity estado = service.listarPorId(id);
+    if(estado == null){
+        return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(estado);
+}
+
 @PostMapping
 public ResponseEntity<Long> post(
         @Valid @RequestBody EstadoDTO estado,
