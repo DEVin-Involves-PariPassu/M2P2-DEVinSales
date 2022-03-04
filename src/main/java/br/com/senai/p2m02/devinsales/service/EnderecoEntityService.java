@@ -25,7 +25,7 @@ public class EnderecoEntityService {
     private EstadoEntityRepository estadoRepository;
 
     @Transactional
-    public List<EnderecoEntity> listar(Long idCidade, Long idEstado, String rua, Integer numero) {
+    public List<EnderecoEntity> listar(Long idCidade, Long idEstado, String rua, Integer numero, String complemento) {
         if(idCidade != null){
             cidadeRepository.findById(idCidade).orElseThrow(() ->
                     new EntityNotFoundException("Cidade não encontrada!"));
@@ -39,7 +39,9 @@ public class EnderecoEntityService {
                         SpecificationsEnderecoEntity.idCidade(idCidade).and(
                                 SpecificationsEnderecoEntity.idEstado(idEstado).and(
                                         SpecificationsEnderecoEntity.rua(rua).and(
-                                                SpecificationsEnderecoEntity.numero(numero)
+                                                SpecificationsEnderecoEntity.numero(numero).and(
+                                                        SpecificationsEnderecoEntity.complemento(complemento)
+                                                )
                                         )
                                 )
                         )
