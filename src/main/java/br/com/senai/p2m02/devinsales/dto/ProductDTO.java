@@ -1,11 +1,26 @@
-package br.com.senai.p2m02.devinsales.parameter;
+package br.com.senai.p2m02.devinsales.dto;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
-public class ProductPostParameter {
+public class ProductDTO {
 
+    private long id;
+
+    @NotBlank (message = "Nome do produto é requerido")
     private String nome;
+
+    @NotNull (message = "O preço sugerido para o produto é requerido")
     private BigDecimal preco_sugerido;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -25,8 +40,9 @@ public class ProductPostParameter {
 
     @Override
     public String toString() {
-        return "ProductPostParameter{" +
-                "nome='" + nome + '\'' +
+        return "ProductDTO{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
                 ", preco_sugerido=" + preco_sugerido +
                 '}';
     }
