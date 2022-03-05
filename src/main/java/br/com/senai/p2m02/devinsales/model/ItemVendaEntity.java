@@ -4,6 +4,7 @@ package br.com.senai.p2m02.devinsales.model;
 import jakarta.persistence.*;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name="item_venda")
@@ -14,16 +15,16 @@ public class ItemVendaEntity {
     @SequenceGenerator(name = "itemvendager", sequenceName = "item_venda_id_ger", allocationSize = 1)
     private Long id;
 
-    @NotNull
     //mapear FK para Entidade Venda
     private Integer idVenda;
 
-    @NotNull
-    //mapear FK para Entidade Produto
-    private Integer idProduto;
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId("idProduto")
+    @JoinColumn(name = "id_produto", referencedColumnName = "id")
+    private ProductEntity produto;
 
     @NotNull
-    private Integer precoUnitario;
+    private BigDecimal precoUnitario;
 
     @NotNull
     private Integer quantidade;
@@ -44,19 +45,19 @@ public class ItemVendaEntity {
         this.idVenda = idVenda;
     }
 
-    public Integer getIdProduto() {
-        return idProduto;
+    public ProductEntity getProduto() {
+        return produto;
     }
 
-    public void setIdProduto(Integer idProduto) {
-        this.idProduto = idProduto;
+    public void setProduto(ProductEntity produto) {
+        this.produto = produto;
     }
 
-    public Integer getPrecoUnitario() {
+    public BigDecimal getPrecoUnitario() {
         return precoUnitario;
     }
 
-    public void setPrecoUnitario(Integer precoUnitario) {
+    public void setPrecoUnitario(BigDecimal precoUnitario) {
         this.precoUnitario = precoUnitario;
     }
 
