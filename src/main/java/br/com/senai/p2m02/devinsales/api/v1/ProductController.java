@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/product")
-public class ProductEntityController {
+public class ProductController {
 
     @Autowired
     ProductEntityRepository repository;
