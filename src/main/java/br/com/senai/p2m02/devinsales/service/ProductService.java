@@ -22,13 +22,13 @@ public class ProductService {
         ProductEntity product = new ProductEntity(productDTO.getId(),
                 productDTO.getNome(),
                 productDTO.getPreco_sugerido());
-        productRepository.produtos.add(product);
+        productRepository.products.add(product);
         return product.getId();
     }
 
     //busca um produto pelo Id e retorna ele
     public ProductEntity findById(Long productId) {
-        for (ProductEntity product : productRepository.produtos) {
+        for (ProductEntity product : productRepository.products) {
             if (product.getId() == productId)
                 return product;
         }

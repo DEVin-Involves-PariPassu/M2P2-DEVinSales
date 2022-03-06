@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends CrudRepository<ProductEntity, Long> {
 
-    List<ProductEntity> produtos = new ArrayList<>();
+    List<ProductEntity> products = new ArrayList<>();
 
     Optional<ProductEntity> findByNome(String nome);
 }
