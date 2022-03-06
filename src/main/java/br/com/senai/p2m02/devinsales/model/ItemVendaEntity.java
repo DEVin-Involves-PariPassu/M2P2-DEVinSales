@@ -15,8 +15,10 @@ public class ItemVendaEntity {
     @SequenceGenerator(name = "itemvendager", sequenceName = "item_venda_id_ger", allocationSize = 1)
     private Long id;
 
-    //mapear FK para Entidade Venda
-    private Integer idVenda;
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId("idVenda")
+    @JoinColumn(name = "id_venda", referencedColumnName = "id")
+    private VendaEntity venda;
 
     @OneToOne(cascade = CascadeType.ALL)
     @MapsId("idProduto")
@@ -37,12 +39,12 @@ public class ItemVendaEntity {
         this.id = id;
     }
 
-    public Integer getIdVenda() {
-        return idVenda;
+    public VendaEntity getVenda() {
+        return venda;
     }
 
-    public void setIdVenda(Integer idVenda) {
-        this.idVenda = idVenda;
+    public void setVenda(VendaEntity venda) {
+        this.venda = venda;
     }
 
     public ProductEntity getProduto() {
