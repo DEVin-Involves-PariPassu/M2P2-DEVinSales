@@ -53,7 +53,5 @@ public class DeliveryEntity {
         this.venda = venda;
     }
 
-    public void setVenda(VendaEntity venda) {
-        this.venda = venda;
-    }
+
 }
