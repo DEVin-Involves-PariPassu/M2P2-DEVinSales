@@ -39,6 +39,7 @@ public class EstadoEntityService {
         );
     }
 
+    @Transactional
     public Long salvar(EstadoDTO estadoDTO){
         EstadoEntity estado = validateAndConvertDto(estadoDTO);
         estado = repository.save(estado);

@@ -13,6 +13,6 @@ public class SpecificationsCidadeEntity {
     }
 
     public static Specification<CidadeEntity> idEstado(Long idEstado){
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id_estado"), idEstado);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("estado"), idEstado);
     }
 }

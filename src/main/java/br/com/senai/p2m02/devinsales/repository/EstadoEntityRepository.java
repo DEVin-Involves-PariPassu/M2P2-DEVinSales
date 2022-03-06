@@ -9,7 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface EstadoEntityRepository extends CrudRepository<EstadoEntity, Long>, JpaSpecificationExecutor<EstadoEntity> {
+public interface EstadoEntityRepository extends CrudRepository<EstadoEntity, Long>,
+        JpaSpecificationExecutor<EstadoEntity> {
     //SELECT * FROM estado WHERE nome = :nome LIMIT 1
     Optional<EstadoEntity> findFirstByNome(String nome);
     //SELECT * FROM estado WHERE sigla = :sigla LIMIT 1

@@ -20,39 +20,52 @@ import java.util.List;
 @RequestMapping("/state")
 public class EstadoEntityController {
 
-@Autowired
-private EstadoEntityService service;
+    @Autowired
+    private EstadoEntityService service;
 
-@GetMapping
-public ResponseEntity<List<EstadoEntity>> get(
-        @RequestParam(required = false) String nome,
-        @RequestAttribute("loggedUser") UserEntity loggedUser
-){
-    if(!loggedUser.canRead("estado")){
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @GetMapping
+    public ResponseEntity<List<EstadoEntity>> get(
+            @RequestParam(required = false) String nome,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ) {
+        if (!loggedUser.canRead("estado")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<EstadoEntity> estadoEntities = service.listar(nome);
+        if (estadoEntities.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(estadoEntities);
     }
-    List<EstadoEntity> estadoEntities = service.listar(nome);
-    if(estadoEntities.isEmpty()){
-        return ResponseEntity.noContent().build();
+
+    @PostMapping
+    public ResponseEntity<Long> post(
+            @Valid @RequestBody EstadoDTO estado,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ) throws RequiredFieldMissingException {
+        if (!loggedUser.canWrite("estado")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        Long idEstado = service.salvar(estado);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(idEstado).toUri();
+
+        return ResponseEntity.created(location).body(idEstado);
     }
-    return ResponseEntity.ok(estadoEntities);
-}
-
-@PostMapping
-public ResponseEntity<Long> post(
-        @Valid @RequestBody EstadoDTO estado,
-        @RequestAttribute("loggedUser") UserEntity loggedUser
-) throws RequiredFieldMissingException {
-    if(!loggedUser.canWrite("estado")){
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @GetMapping("/{id}")
+    public ResponseEntity<EstadoEntity> getPorId(
+            @PathVariable long id,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if(!loggedUser.canRead("estado")){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        EstadoEntity estado = service.listarPorId(id);
+        if(estado == null){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(estado);
     }
-    Long idEstado = service.salvar(estado);
-
-    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(idEstado).toUri();
-
-    return ResponseEntity.created(location).body(idEstado);
-}
-
 }

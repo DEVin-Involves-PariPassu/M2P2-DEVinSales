@@ -29,4 +29,5 @@ public class HealthzController {
         return new ResponseEntity<>(permissions, HttpStatus.OK);
     }
 
+
 }
