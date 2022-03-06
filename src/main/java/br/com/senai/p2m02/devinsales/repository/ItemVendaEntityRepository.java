@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface ItemVendaRepository extends CrudRepository<ItemVendaEntity, Long> {
+public interface ItemVendaEntityRepository extends CrudRepository<ItemVendaEntity, Long> {
 
     Optional<ItemVendaEntity> findItemVendaEntityByIdVenda(Integer id);
 }
