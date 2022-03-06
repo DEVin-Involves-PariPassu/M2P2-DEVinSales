@@ -18,12 +18,12 @@ public class ItemVendaEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @MapsId("idVenda")
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
-    private VendaEntity venda;
+    private VendaEntity idVenda;
 
     @OneToOne(cascade = CascadeType.ALL)
     @MapsId("idProduto")
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
-    private ProductEntity produto;
+    private ProductEntity idProduto;
 
     @NotNull
     private BigDecimal precoUnitario;
@@ -39,20 +39,20 @@ public class ItemVendaEntity {
         this.id = id;
     }
 
-    public VendaEntity getVenda() {
-        return venda;
+    public VendaEntity getIdVenda() {
+        return idVenda;
     }
 
-    public void setVenda(VendaEntity venda) {
-        this.venda = venda;
+    public void setIdVenda(VendaEntity idVenda) {
+        this.idVenda = idVenda;
     }
 
-    public ProductEntity getProduto() {
-        return produto;
+    public ProductEntity getIdProduto() {
+        return idProduto;
     }
 
-    public void setProduto(ProductEntity produto) {
-        this.produto = produto;
+    public void setIdProduto(ProductEntity idProduto) {
+        this.idProduto = idProduto;
     }
 
     public BigDecimal getPrecoUnitario() {
