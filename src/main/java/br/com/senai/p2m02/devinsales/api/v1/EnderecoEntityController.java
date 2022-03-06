@@ -35,4 +35,21 @@ public class EnderecoEntityController {
         }
         return ResponseEntity.ok(enderecoEntities);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EnderecoEntity> get(
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @PathVariable (name = "id") Long id,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if(!loggedUser.canRead("endereco")){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        EnderecoEntity endereco = service.getById(idCidade, idEstado, id);
+        if(endereco == null){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(endereco);
+    }
 }
