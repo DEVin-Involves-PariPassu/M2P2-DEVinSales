@@ -52,8 +52,6 @@ public class DeliveryEntity {
 
     public void setVenda(VendaEntity venda){
 
-    public void setVenda(VendaEntity venda){
-
         this.venda = venda;
     }
 
