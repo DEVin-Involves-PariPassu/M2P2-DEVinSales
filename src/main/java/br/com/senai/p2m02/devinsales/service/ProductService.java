@@ -5,6 +5,8 @@ import br.com.senai.p2m02.devinsales.model.ProductEntity;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,14 @@ public class ProductService {
         ProductEntity product = validationsPost(productDTO);
         productRepository.save(product);
         return product.getId();
+    }
+
+    public ProductEntity findById(Long productId) {
+        for (ProductEntity product : productRepository.findAll()) {
+            if (product.getId() == productId)
+                return product;
+        }
+        return null;
     }
 
     private ProductEntity validationsPost(ProductDTO productDTO){
@@ -60,6 +70,25 @@ public class ProductService {
         if(productDTO.getNome().isBlank()){
             throw new RequiredFieldMissingException("O nome do produto é obrigatório.");
         }
+    }
+
+    public void existsById(Long id_produto){
+        ProductEntity product = findById(id_produto);
+        if (product == null) {
+            throw new EntityNotFoundException("Não há nenhum produto com este id");
+        }
+    }
+
+    @Transactional
+    public void delete(Long id_produto){
+        ProductEntity product = findById(id_produto);
+        if (product == null) {
+            existsById(id_produto);
+        }
+        //Long item_venda = existsItemVenda(id_produto);
+        //if (item_venda != id_produto)
+        productRepository.delete(product);
+
     }
 
 }
