@@ -12,7 +12,7 @@ public class CidadeEntity {
 
     private String nome;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JoinColumn(name = "id_estado", referencedColumnName = "id")
     private EstadoEntity estado;
 
