@@ -43,10 +43,21 @@ public class UserEntityService {
             userFeatureEntity.setFeature(featureEntity);
             userFeatureEntity.setRead(false);
             userFeatureEntity.setWrite(false);
-            userFeatureEntity = userFeatureEntityRepository.save(userFeatureEntity);
         } else {
             userFeatureEntity = optionalUserFeature.get();
         }
-
+        if(tipoPermissao.equals("read")) {
+            userFeatureEntity.setRead(true);
+            userFeatureEntity.setWrite(false);
+        } else if (tipoPermissao.equals("write")) {
+            userFeatureEntity.setRead(false);
+            userFeatureEntity.setWrite(true);
+        } else if (tipoPermissao.equals("readwrite")) {
+            userFeatureEntity.setRead(true);
+            userFeatureEntity.setWrite(true);
+        } else {
+            throw new IllegalArgumentException("A permissão é ínválida.");
+        }
+        userFeatureEntityRepository.save(userFeatureEntity);
     }
 }
