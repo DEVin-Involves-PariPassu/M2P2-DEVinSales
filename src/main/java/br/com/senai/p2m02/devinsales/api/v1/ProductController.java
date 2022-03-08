@@ -69,6 +69,11 @@ public class ProductController {
         if(!loggedUser.canWrite("produto")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
+        if(id_produto == null){
+            return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         service.updateDoPatch(id_produto, productDTO);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
