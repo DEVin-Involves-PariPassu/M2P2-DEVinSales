@@ -61,4 +61,15 @@ public class ProductController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
+
+    @PatchMapping("/{id_produto}")
+    public ResponseEntity patch(@PathVariable Long id_produto,
+                                @RequestAttribute("loggedUser") UserEntity loggedUser,
+                                @RequestBody ProductDTO productDTO) {
+        if(!loggedUser.canWrite("produto")){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.updateDoPatch(id_produto, productDTO);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }
