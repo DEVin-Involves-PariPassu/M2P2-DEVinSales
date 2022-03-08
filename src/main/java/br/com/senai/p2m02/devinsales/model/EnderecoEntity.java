@@ -14,7 +14,7 @@ public class EnderecoEntity {
     private Integer numero;
     private String complemento;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JoinColumn(name = "id_cidade", referencedColumnName = "id")
     private CidadeEntity cidade;
 
