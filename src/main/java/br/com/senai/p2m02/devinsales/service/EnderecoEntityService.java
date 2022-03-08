@@ -2,6 +2,7 @@ package br.com.senai.p2m02.devinsales.service;
 
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
+import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -48,4 +49,8 @@ public class EnderecoEntityService {
                 )
         );
     }
+
+
 }
+
+
