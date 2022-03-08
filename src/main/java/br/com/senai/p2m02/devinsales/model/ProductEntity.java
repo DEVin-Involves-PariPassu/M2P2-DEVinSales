@@ -8,9 +8,10 @@ import java.math.BigDecimal;
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "productger")
-    @SequenceGenerator(name = "productger", sequenceName = "product_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY/*, generator = "productger"*/)
     private long id;
+    //@SequenceGenerator(name = "productger", sequenceName = "product_id_seq", allocationSize = 1)
+
 
     private String nome;
     private BigDecimal preco_sugerido;
