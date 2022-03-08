@@ -40,11 +40,12 @@ public class ItemVendaEntity {
     public void setId(Long id) {
         this.id = id;
     }
+
     @JsonIgnore
     public VendaEntity getVenda() {
         return venda;
-    }
 
+   
     public void setVenda(VendaEntity venda) {
         this.venda = venda;
     }
