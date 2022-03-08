@@ -25,7 +25,7 @@ public class    VendaService {
 
     @Transactional
     public List<VendaEntity> listarVendas(Long idVendedor){
-        userRepository.findById(idVendedor).orElseThrow(()->new EntityNotFoundException("Não existe vendedor com ID " +idVendedor))
+        userRepository.findById(idVendedor).orElseThrow(()->new EntityNotFoundException("Não existe vendedor com ID " +idVendedor));
         return vendaRepository.findAll(Specification.where(
                 SpecificationsVendaEntity.idVendedor(idVendedor)
         ));
