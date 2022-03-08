@@ -20,7 +20,7 @@ public class ProductService {
 
     public Long insert(ProductDTO productDTO){
         ProductEntity product = validationsPost(productDTO);
-        product = productRepository.save(product);
+        productRepository.save(product);
         return product.getId();
     }
 
