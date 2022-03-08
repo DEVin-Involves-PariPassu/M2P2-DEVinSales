@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @RestController
@@ -32,17 +33,16 @@ public class ProductController {
             return new ResponseEntity<>(productId, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id_produto}")
-    public ResponseEntity<Void> delete(@PathVariable Long id_produto,
-                                       @RequestAttribute("loggedUser") UserEntity loggedUser) {
-        if (!loggedUser.canWrite("produto")) {
+    @DeleteMapping(value = "/{id_produto}")
+    public ResponseEntity delete(@NotNull @PathVariable Long id_produto,
+                                 @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if(!loggedUser.canWrite("produto")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Optional<ProductEntity> optionalProduto = repository.findById(id_produto);
-        if (optionalProduto.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        repository.delete(optionalProduto.get());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        service.delete(id_produto);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(id_produto);
     }
 }
