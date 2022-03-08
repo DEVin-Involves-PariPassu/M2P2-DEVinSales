@@ -4,6 +4,7 @@ import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.repository.*;
+import br.com.senai.p2m02.devinsales.service.exception.EntityIsReferencedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,4 +75,23 @@ public class EnderecoEntityService {
 
         return enderecoEntity;
     }
+
+
+    @Transactional
+    public void deletar(Long idEstado, Long idCidade, Long idEndereco){
+
+        EstadoEntity estadoEntity = estadoRepository.findById(idEstado).orElseThrow(() -> new EntityNotFoundException("Não existe Estado com o id: " + idEstado));
+        CidadeEntity cidadeEntity = cidadeRepository.findById(idCidade).orElseThrow(() -> new EntityNotFoundException("Não existe Cidade com o id: " + idCidade));
+        EnderecoEntity enderecoEntity = enderecoRepository.findById(idEndereco).orElseThrow(() -> new EntityNotFoundException("Não existe Endereço com o id: " + idEndereco));
+        if(!idEstado.equals(cidadeEntity.getEstado().getId())){
+            throw new IllegalArgumentException("O ID do estado não coincide com o ID especificado!");
+        }
+        if(!idCidade.equals(enderecoEntity.getCidade().getId())){
+            throw new IllegalArgumentException("O ID da cidade não coincide com o ID especificado!");
+        }
+
+        enderecoRepository.delete(enderecoEntity);
+    }
+
+
 }
