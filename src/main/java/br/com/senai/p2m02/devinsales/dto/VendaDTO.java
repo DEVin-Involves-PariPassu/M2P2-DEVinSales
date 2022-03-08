@@ -1,14 +1,23 @@
 package br.com.senai.p2m02.devinsales.dto;
 
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+
+
 public class VendaDTO {
-    
-    public Long id;
-    
-    public Long compradorId;
+    private Long id;
 
-    public Long vendedorId;
+    @NotNull(message = "Id da venda é requerido")
+    private Long vendaId;
 
-    public String dataVenda;
+    @NotNull(message = "Nome do vendedor é requerido")
+    private Long vendedor;
+
+    @NotNull(message = "Nome do comprador é requerido")
+    private Long comprador;
+
+    @NotNull(message = "Data da venda é requerida")
+    private String dataVenda;
 
     public Long getId() {
         return id;
@@ -18,20 +27,28 @@ public class VendaDTO {
         this.id = id;
     }
 
-    public Long getCompradorId() {
-        return compradorId;
+    public Long getVendaId() {
+        return vendaId;
     }
 
-    public void setCompradorId(Long compradorId) {
-        this.compradorId = compradorId;
+    public void setVendaId(Long vendaId) {
+        this.vendaId = vendaId;
     }
 
-    public Long getVendedorId() {
-        return vendedorId;
+    public Long getVendedor() {
+        return vendedor;
     }
 
-    public void setVendedorId(Long vendedorId) {
-        this.vendedorId = vendedorId;
+    public void setVendedor(Long vendedor) {
+        this.vendedor = vendedor;
+    }
+
+    public Long getComprador() {
+        return comprador;
+    }
+
+    public void setComprador(Long comprador) {
+        this.comprador = comprador;
     }
 
     public String getDataVenda() {
@@ -41,6 +58,4 @@ public class VendaDTO {
     public void setDataVenda(String dataVenda) {
         this.dataVenda = dataVenda;
     }
-
-
 }

@@ -44,7 +44,7 @@ public class ItemVendaEntity {
     @JsonIgnore
     public VendaEntity getVenda() {
         return venda;
-
+    }
    
     public void setVenda(VendaEntity venda) {
         this.venda = venda;

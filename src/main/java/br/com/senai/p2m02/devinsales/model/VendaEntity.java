@@ -3,6 +3,7 @@ package br.com.senai.p2m02.devinsales.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity(name = "venda")
 public class VendaEntity {
@@ -24,6 +25,17 @@ public class VendaEntity {
     @JoinColumn(name = "id_vendedor", referencedColumnName = "id")
     private UserEntity vendedor;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "venda", fetch = FetchType.EAGER)
+    private List<ItemVendaEntity> itens;
+
+    public List<ItemVendaEntity> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<ItemVendaEntity> itens) {
+        this.itens = itens;
+    }
+
     public Long getId() {
         return id;
     }
@@ -32,6 +44,13 @@ public class VendaEntity {
         this.id = id;
     }
 
+    public LocalDate getDataVenda() {
+        return dataVenda;
+    }
+
+    public void setDataVenda(LocalDate dataVenda) {
+        this.dataVenda = dataVenda;
+    }
 
     public UserEntity getComprador() {
         return comprador;
@@ -47,13 +66,5 @@ public class VendaEntity {
 
     public void setVendedor(UserEntity vendedor) {
         this.vendedor = vendedor;
-    }
-
-    public LocalDate getDataVenda() {
-        return dataVenda;
-    }
-
-    public void setDataVenda(LocalDate dataVenda) {
-        this.dataVenda = dataVenda;
     }
 }

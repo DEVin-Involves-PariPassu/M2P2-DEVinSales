@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -24,7 +25,7 @@ public class FeatureEntity {
     public void setId(Long id) {
         this.id = id;
     }
-
+    @JsonIgnore
     public Set<UserFeatureEntity> getUserFeatureEntities() {
         return userFeatureEntities;
     }
