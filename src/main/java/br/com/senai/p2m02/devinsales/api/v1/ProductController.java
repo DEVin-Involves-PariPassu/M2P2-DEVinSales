@@ -45,4 +45,20 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(id_produto);
     }
+
+    @PutMapping(value = "/{id_produto}")
+    public ResponseEntity<Long> put(@NotNull @PathVariable Long id_produto,
+                                    @RequestAttribute("loggedUser") UserEntity loggedUser,
+                                    @RequestBody ProductDTO productDTO) {
+        if(!loggedUser.canWrite("produto")){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if(id_produto == null){
+            return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        service.updateDoPut(id_produto, productDTO);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
 }

@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY/*, generator = "productger"*/)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    //@SequenceGenerator(name = "productger", sequenceName = "product_id_seq", allocationSize = 1)
+
 
 
     private String nome;

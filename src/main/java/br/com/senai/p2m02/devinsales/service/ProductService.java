@@ -91,4 +91,38 @@ public class ProductService {
 
     }
 
+    @Transactional
+    public Long updateDoPut(Long id_produto,
+                            ProductDTO productDTO) {
+        ProductEntity product = validationsPut(id_produto, productDTO);
+        product.setNome(productDTO.getNome());
+        product.setPreco_sugerido(productDTO.getPreco_sugerido());
+
+        return id_produto;
+    }
+
+    public ProductEntity validationsPut(Long id_produto,
+                                        ProductDTO productDTO){
+        ProductEntity product = findById(id_produto);
+        if (product == null) {
+            existsById(id_produto);
+        }
+        if (productDTO.getNome().isBlank()){
+            existsNome(productDTO);
+        }
+        if (productDTO.getPreco_sugerido() == null){
+            existsPreco(productDTO);
+        }
+        if(!productDTO.getNome().isBlank()){
+            isUniqueNomeProduct(productDTO);
+        }
+        if (productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0){
+            precoValido(productDTO);
+        }
+
+        return  product;
+    }
+
+
+
 }
