@@ -24,9 +24,10 @@ public class ItemVendaEntityService {
         VendaEntity vendaEntity = vendaEntityRepository.findById(idVenda).orElseThrow(
                 () -> new EntityNotFoundException("Não existe venda com id " + idVenda)
         );
-        if (!itemVendaEntity.getIdVenda().equals(vendaEntity.getId())){
+
+        if (!itemVendaEntity.getVenda().getId().equals(vendaEntity.getId())){
             throw new IllegalArgumentException
-                    ("O item com o id " + idItem + " não é da venda com id " +idVenda);
+                    ("O item com o id " + idItem + " não é da venda com id " + idVenda);
         }
         if (quantity <= 0){
             throw new IllegalArgumentException
