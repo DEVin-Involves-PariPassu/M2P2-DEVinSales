@@ -1,6 +1,6 @@
 package br.com.senai.p2m02.devinsales.repository;
 
-import br.com.senai.p2m02.devinsales.model.EstadoEntity;
+
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import org.springframework.data.jpa.domain.Specification;
 
