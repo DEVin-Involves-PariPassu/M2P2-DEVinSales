@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class    VendaService {
+public class VendaService {
 
     @Autowired
     private VendaEntityRepository vendaRepository;
