@@ -1,6 +1,7 @@
 package br.com.senai.p2m02.devinsales.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import javax.validation.constraints.NotNull;
@@ -15,13 +16,14 @@ public class ItemVendaEntity {
     @SequenceGenerator(name = "itemvendager", sequenceName = "item_venda_id_ger", allocationSize = 1)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @MapsId("idVenda")
+    @ManyToOne(cascade = CascadeType.ALL)// Muitos itens para uma venda.??
+    //@OneToOne(cascade = CascadeType.ALL)
+    //@MapsId("idVenda") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
     private VendaEntity venda;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @MapsId("idProduto")
+    //@MapsId("idProduto") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
     private ProductEntity produto;
 
@@ -38,7 +40,7 @@ public class ItemVendaEntity {
     public void setId(Long id) {
         this.id = id;
     }
-
+    @JsonIgnore
     public VendaEntity getVenda() {
         return venda;
     }
