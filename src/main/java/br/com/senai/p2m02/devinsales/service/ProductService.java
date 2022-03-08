@@ -101,6 +101,18 @@ public class ProductService {
         return id_produto;
     }
 
+    @Transactional
+    public Long updateDoPatch(Long id_produto,
+                              ProductDTO productDTO) {
+        ProductEntity product = validationsPatch(id_produto, productDTO);
+
+        if (productDTO.getNome() != null)
+            product.setNome(productDTO.getNome());
+        if(productDTO.getPreco_sugerido() != null)
+            product.setPreco_sugerido(productDTO.getPreco_sugerido());
+        return id_produto;
+    }
+
     public ProductEntity validationsPut(Long id_produto,
                                         ProductDTO productDTO){
         ProductEntity product = findById(id_produto);
@@ -123,6 +135,25 @@ public class ProductService {
         return  product;
     }
 
+    public ProductEntity validationsPatch(Long id_produto,
+                                        ProductDTO productDTO){
+        ProductEntity product = findById(id_produto);
+        if (product == null) {
+            existsById(id_produto);
+        }
+        if(productDTO.getNome() != null) {
+            if (!productDTO.getNome().isBlank()) {
+                isUniqueNomeProduct(productDTO);
+            }
+        }
+        if (productDTO.getPreco_sugerido() != null){
+            if (productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0) {
+                precoValido(productDTO);
+            }
+        }
+
+        return product;
+    }
 
 
 }
