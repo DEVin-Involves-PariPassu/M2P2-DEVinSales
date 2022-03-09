@@ -9,7 +9,7 @@ public class SpecificationsEstadoEntity {
         return (root, query, criteriaBuilder) -> {
             if(nome == null) {
                 return criteriaBuilder.like(root.get("nome"), "%%");
-            } else return criteriaBuilder.like(root.join("").get("nome"), "%" + nome + "%");
+            } else return criteriaBuilder.like(root.get("nome"), "%" + nome + "%");
         };
     }
 }
