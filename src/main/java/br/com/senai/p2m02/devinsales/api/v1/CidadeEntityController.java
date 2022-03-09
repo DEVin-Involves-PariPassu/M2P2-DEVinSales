@@ -34,4 +34,18 @@ public class CidadeEntityController {
 
     }
 
+    @DeleteMapping("/{id_city}")
+    public  ResponseEntity<Void> delete(
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @RequestAttribute("loggedUser") UserEntity loggedUser) {
+        if (!loggedUser.canWrite("cidade")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.deletar(idCidade, idEstado);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
