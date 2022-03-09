@@ -46,7 +46,7 @@ public class EnderecoEntityController {
         if(!loggedUser.canRead("endereco")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        EnderecoEntity endereco = service.getById(idCidade, idEstado, idEndereco);
+        EnderecoEntity endereco = service.listarPorId(idCidade, idEstado, idEndereco);
 
         return ResponseEntity.ok(endereco);
     }
