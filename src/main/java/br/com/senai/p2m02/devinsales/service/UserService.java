@@ -46,8 +46,8 @@ public class UserService {
         //ver uma maneira de calcular a idade, com base na data fornecida
         //dataNascimento = user.getDtNascimento();
         //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        int dataAtual;
-        int dataNascimento;
+        int dataAtual = 0;
+        int dataNascimento = 0;
         Integer age = dataAtual - dataNascimento;
         if (age <= 18) {
             //Erro BAD REQUEST
