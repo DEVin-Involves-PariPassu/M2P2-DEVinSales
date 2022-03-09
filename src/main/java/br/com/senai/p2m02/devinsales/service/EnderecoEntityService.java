@@ -56,7 +56,7 @@ public class EnderecoEntityService {
     }
 
     @Transactional
-    public EnderecoEntity getById(Long idCidade, Long idEstado, Long id) {
+    public EnderecoEntity listarPorId(Long idCidade, Long idEstado, Long id) {
         CidadeEntity cidadeEntity = cidadeRepository.findById(idCidade).orElseThrow(() ->
                 new EntityNotFoundException("Cidade não encontrada!"));
 
