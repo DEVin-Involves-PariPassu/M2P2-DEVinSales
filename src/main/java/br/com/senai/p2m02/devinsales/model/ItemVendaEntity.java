@@ -1,6 +1,7 @@
 package br.com.senai.p2m02.devinsales.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import javax.validation.constraints.NotNull;
@@ -15,15 +16,16 @@ public class ItemVendaEntity {
     @SequenceGenerator(name = "itemvendager", sequenceName = "item_venda_id_ger", allocationSize = 1)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @MapsId("idVenda")
+    @ManyToOne(cascade = CascadeType.ALL)// Muitos itens para uma venda.??
+    //@OneToOne(cascade = CascadeType.ALL)
+    //@MapsId("idVenda") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
-    private VendaEntity idVenda;
+    private VendaEntity venda;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @MapsId("idProduto")
+    //@MapsId("idProduto") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
-    private ProductEntity idProduto;
+    private ProductEntity produto;
 
     @NotNull
     private BigDecimal precoUnitario;
@@ -39,20 +41,21 @@ public class ItemVendaEntity {
         this.id = id;
     }
 
-    public VendaEntity getIdVenda() {
-        return idVenda;
+    @JsonIgnore
+    public VendaEntity getVenda() {
+        return venda;
+    }
+   
+    public void setVenda(VendaEntity venda) {
+        this.venda = venda;
     }
 
-    public void setIdVenda(VendaEntity idVenda) {
-        this.idVenda = idVenda;
+    public ProductEntity getProduto() {
+        return produto;
     }
 
-    public ProductEntity getIdProduto() {
-        return idProduto;
-    }
-
-    public void setIdProduto(ProductEntity idProduto) {
-        this.idProduto = idProduto;
+    public void setProduto(ProductEntity produto) {
+        this.produto = produto;
     }
 
     public BigDecimal getPrecoUnitario() {
