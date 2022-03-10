@@ -12,7 +12,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "userger")
     @SequenceGenerator(name = "userger", sequenceName = "usuario_id_seq", allocationSize = 1)
-    private long id;
+    private Long id;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserFeatureEntity> userFeatureEntities;
@@ -22,11 +22,11 @@ public class UserEntity {
     private String nome;
     private LocalDate dtNascimento;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
