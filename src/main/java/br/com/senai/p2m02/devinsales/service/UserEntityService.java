@@ -35,7 +35,7 @@ public class UserEntityService {
         UserFeatureId idUserFeature = new UserFeatureId(userEntity.getId(), featureEntity.getId());
 
         Optional<UserFeatureEntity> optionalUserFeature = userFeatureEntityRepository.findById(idUserFeature);
-        UserFeatureEntity userFeatureEntity = null;
+        UserFeatureEntity userFeatureEntity;
 
         if(optionalUserFeature.isEmpty()) {
             userFeatureEntity = new UserFeatureEntity();
