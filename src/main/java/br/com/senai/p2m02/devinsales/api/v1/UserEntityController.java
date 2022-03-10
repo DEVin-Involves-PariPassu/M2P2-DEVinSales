@@ -21,14 +21,23 @@ public class UserEntityController {
     @PostMapping
     public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity user,
                                      @Valid @RequestBody UserDTO userDTO) {
-            if (!user.canWrite("usuario")) {
+        if (!user.canWrite("usuario")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Long userId = service.salvar(userDTO);
 
         return new ResponseEntity<>(userId, HttpStatus.CREATED);
-
-
     }
 
+    @PutMapping ("/{id_user}")
+    public ResponseEntity<Void> put(@RequestAttribute("loggedUser") UserEntity user,
+                                    @PathVariable (name = "id_user") Long idUser,
+                                    @Valid @RequestBody UserDTO userDTO) {
+        if (!user.canWrite("usuario")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.atualizar(idUser, userDTO);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
