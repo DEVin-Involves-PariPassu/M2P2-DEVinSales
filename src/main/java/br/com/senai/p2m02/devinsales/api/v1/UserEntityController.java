@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,8 @@ reawrite: boolean
 */
 
     @PostMapping
-    public ResponseEntity<Long> post(@Valid @RequestBody UserEntity user//,
-            /*@Valid @RequestBody UserDTO userDTO*/) {
+    public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity user,
+                                     @Valid @RequestBody UserDTO userDTO) {
         // usuário logado deve possuir write para a Feature de Usuario.
         // Caso não possua, deve-se retornar o Status de Erro 403 (Forbidden)
         if (!user.canWrite("usuario")) {
@@ -47,7 +48,7 @@ reawrite: boolean
         //tabela de USUARIO, bem como devem ser criados n registros de Usuario_Feature,
         //de acordo com as features enviadas
 
-        Long userId = service.salvar(user);
+        Long userId = service.salvar(userDTO);
 
         //O retorno em caso de sucesso deve ser o Status 201 (Created),
         //bem como deve-se retornar o Id do usuário criado.
