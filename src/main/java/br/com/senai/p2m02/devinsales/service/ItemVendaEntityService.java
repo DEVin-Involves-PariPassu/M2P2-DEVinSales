@@ -6,7 +6,12 @@ import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class ItemVendaEntityService {
@@ -35,5 +40,30 @@ public class ItemVendaEntityService {
         }
         itemVendaEntity.setQuantidade(quantity);
         itemVendaEntityRepository.save(itemVendaEntity);
+    }
+
+    public ResponseEntity<Object> patchPrice(Long idVenda, Long idItem, BigDecimal price) {
+
+        Optional<ItemVendaEntity> itemVendaToUpdateOpt = this.itemVendaEntityRepository.findById(idItem);
+        Optional<VendaEntity> vendaOpt = this.vendaEntityRepository.findById(idVenda);
+
+        if (vendaOpt.isEmpty() || itemVendaToUpdateOpt.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        ItemVendaEntity itemVendaToUpdate = itemVendaToUpdateOpt.get();
+        VendaEntity venda = vendaOpt.get();
+        if (!itemVendaToUpdate.getVenda().getId().equals(venda.getId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (price.intValue() <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        itemVendaToUpdate.setPrecoUnitario(price);
+        itemVendaEntityRepository.save(itemVendaToUpdate);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
