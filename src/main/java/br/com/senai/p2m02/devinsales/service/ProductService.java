@@ -49,7 +49,7 @@ public class ProductService {
 
     private void precoValido(ProductDTO productDTO){
         if(productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0){
-            throw new RequiredFieldMissingException("Valor do produto inválido.");
+            throw new IllegalArgumentException("Valor do produto inválido.");
         }
     }
 
