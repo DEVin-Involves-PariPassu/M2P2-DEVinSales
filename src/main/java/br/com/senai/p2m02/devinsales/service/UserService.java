@@ -1,11 +1,13 @@
 package br.com.senai.p2m02.devinsales.service;
 
+import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -14,25 +16,25 @@ public class UserService {
     @Autowired
     UserEntityRepository userRepository;
 
-    public Long salvar(UserEntity user){
+    public Long salvar(UserDTO user){
         UserEntity newUser = validationsUser(user);
         userRepository.save(newUser);
         return newUser.getId();
     }
 
-    private UserEntity validationsUser(UserEntity user) {
+    private UserEntity validationsUser(UserDTO user) {
 
         isUniqueNameUser(user);
         isUniqueLoginUser(user);
-        verificationAge(user);
-        validationFeature(user);
+        //verificationAge(user);
+        //validationFeature(user);
 
 
         UserEntity newUser = new UserEntity();
         newUser.setLogin(user.getLogin());
         newUser.setSenha(user.getSenha());
         newUser.setNome(user.getNome());
-        newUser.setDtNascimento(user.getDtNascimento());
+        newUser.setDtNascimento(LocalDate.parse(user.getDtNascimento()));
 
         return newUser;
     }
@@ -54,7 +56,7 @@ public class UserService {
         }
     }
 
-    private void isUniqueLoginUser(UserEntity user) {
+    private void isUniqueLoginUser(UserDTO user) {
         //Não pode haver nenhum outro usuário com o mesmo login
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByLoginAndSenha(user.getLogin(), user.getSenha());
@@ -63,10 +65,10 @@ public class UserService {
         }
     }
 
-    private void isUniqueNameUser(UserEntity user) {
+    private void isUniqueNameUser(UserDTO user) {
         //Não pode haver nenhum outro usuário com o mesmo nome
 
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByName(user.getNome());
+        Optional<UserEntity> optionalUser = userRepository.findUserEntityByNome(user.getNome());
         if(optionalUser.isPresent()){
             throw new EntityExistsException("Já existe este nome de usuário cadastrado: " + user.getNome());
         }
