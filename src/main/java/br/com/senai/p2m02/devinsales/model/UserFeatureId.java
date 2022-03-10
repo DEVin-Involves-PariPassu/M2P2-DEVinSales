@@ -10,6 +10,13 @@ public class UserFeatureId implements Serializable {
     private Long idUsuario;
     private Long idFeature;
 
+    public UserFeatureId () {}
+
+    public UserFeatureId(Long idUsuario, Long idFeature) {
+        this.idUsuario = idUsuario;
+        this.idFeature = idFeature;
+    }
+
     public Long getIdUsuario() {
         return idUsuario;
     }
