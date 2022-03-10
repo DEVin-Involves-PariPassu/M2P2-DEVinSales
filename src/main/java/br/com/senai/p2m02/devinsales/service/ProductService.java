@@ -1,7 +1,9 @@
 package br.com.senai.p2m02.devinsales.service;
 
 import br.com.senai.p2m02.devinsales.dto.ProductDTO;
+import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.ProductEntity;
+import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityExistsException;
@@ -19,6 +21,9 @@ public class ProductService {
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    ItemVendaEntityRepository itemVendaRepository;
 
     public Long insert(ProductDTO productDTO){
         ProductEntity product = validationsPost(productDTO);
@@ -49,7 +54,7 @@ public class ProductService {
 
     private void precoValido(ProductDTO productDTO){
         if(productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0){
-            throw new RequiredFieldMissingException("Valor do produto inválido.");
+            throw new IllegalArgumentException("Valor do produto inválido.");
         }
     }
 
@@ -79,14 +84,22 @@ public class ProductService {
         }
     }
 
+    public void existsItemVenda(ProductEntity product){
+        Optional<ItemVendaEntity> item_venda = itemVendaRepository.findByProduto(product);
+        if (item_venda.isPresent())
+            throw new EntityExistsException("Há itens de venda com o id requisitado");
+
+    }
+
     @Transactional
     public void delete(Long id_produto){
         ProductEntity product = findById(id_produto);
         if (product == null) {
             existsById(id_produto);
         }
-        //Long item_venda = existsItemVenda(id_produto);
-        //if (item_venda != id_produto)
+
+        existsItemVenda(product);
+
         productRepository.delete(product);
 
     }
