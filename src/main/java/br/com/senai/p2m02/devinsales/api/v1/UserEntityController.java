@@ -14,23 +14,20 @@ import javax.validation.Valid;
 @RequestMapping("/user")
 @Repository
 public class UserEntityController {
-    @Autowired
-    UserEntityService service;
+   @Autowired
+    private UserEntityService service;
 
     @PostMapping
     public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity user,
                                      @Valid @RequestBody UserDTO userDTO) {
-            if (!user.canWrite("usuario")) {
+        if (!user.canWrite("usuario")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Long userId = service.salvar(userDTO);
 
 
-    @Autowired
-    private UserEntityService service;
-
         return new ResponseEntity<>(userId, HttpStatus.CREATED);
-      
+    }
 
     @PatchMapping ("/{id_user}/feature/{nome_feature}/permissao/{tipo_permissao}")
     public ResponseEntity<Void> patchPermissao(
@@ -42,6 +39,18 @@ public class UserEntityController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         service.patchPermissao(idUser, nomeFeature, tipoPermissao);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+  
+    @PutMapping ("/{id_user}")
+    public ResponseEntity<Void> put(@RequestAttribute("loggedUser") UserEntity user,
+                                    @PathVariable (name = "id_user") Long idUser,
+                                    @Valid @RequestBody UserDTO userDTO) {
+        if (!user.canWrite("usuario")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.atualizar(idUser, userDTO);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
