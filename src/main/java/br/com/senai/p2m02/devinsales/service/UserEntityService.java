@@ -4,6 +4,7 @@ import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,25 @@ public class UserEntityService {
         UserEntity newUser = validationsUser(user);
         userRepository.save(newUser);
         return newUser.getId();
+    }
+
+    public void atualizar(Long idUser, UserDTO userDTO){
+
+    }
+
+    public UserEntity updateUser(Long idUser, UserDTO userDTO){
+        isUniqueNameUser(userDTO);
+        isUniqueLoginUser(userDTO);
+
+        UserEntity user = userRepository.findById(idUser).orElseThrow(
+                ()-> new EntityNotFoundException("Id de usuário inexistente.")
+        );
+        user.setLogin(userDTO.getLogin());
+        user.setSenha(userDTO.getSenha());
+        user.setNome(userDTO.getNome());
+        user.setDtNascimento(LocalDate.parse(userDTO.getDtNascimento()));
+
+        return user;
     }
 
     private UserEntity validationsUser(UserDTO user) {
