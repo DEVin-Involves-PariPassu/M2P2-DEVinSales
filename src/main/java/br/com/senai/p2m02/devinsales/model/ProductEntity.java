@@ -7,8 +7,11 @@ import java.math.BigDecimal;
 @Entity(name="produto")
 public class ProductEntity {
 
+    //@Id
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "productger")
+    @SequenceGenerator(name = "productger", sequenceName = "produto_id_seq", allocationSize = 1)
     private long id;
 
 
