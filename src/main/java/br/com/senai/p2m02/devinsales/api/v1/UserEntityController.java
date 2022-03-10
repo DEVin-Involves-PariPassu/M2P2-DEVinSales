@@ -2,7 +2,7 @@ package br.com.senai.p2m02.devinsales.api.v1;
 
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.service.UserService;
+import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import javax.validation.Valid;
 @Repository
 public class UserEntityController {
     @Autowired
-    UserService service;
+    UserEntityService service;
 /* Criar UserDTO com esses parâmetros:
 Entrada: Body parameter (@RequestBody)
 {
