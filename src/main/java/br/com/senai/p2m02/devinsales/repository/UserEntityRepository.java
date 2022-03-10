@@ -9,5 +9,5 @@ public interface UserEntityRepository extends CrudRepository<UserEntity, Long> {
 
     Optional<UserEntity> findUserEntityByLoginAndSenha(String login, String senha);
 
-    Optional<UserEntity> findUserEntityByName(String nome);
+    Optional<UserEntity> findUserEntityByNome(String nome);
 }
