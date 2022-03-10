@@ -39,6 +39,7 @@ public class UserEntityService {
 
         if(optionalUserFeature.isEmpty()) {
             userFeatureEntity = new UserFeatureEntity();
+            userFeatureEntity.setId(new UserFeatureId(userEntity.getId(), featureEntity.getId()));
             userFeatureEntity.setUser(userEntity);
             userFeatureEntity.setFeature(featureEntity);
             userFeatureEntity.setRead(false);
