@@ -26,9 +26,6 @@ public class UserEntityService {
 
         isUniqueNameUser(user);
         isUniqueLoginUser(user);
-        //verificationAge(user);
-        //validationFeature(user);
-
 
         UserEntity newUser = new UserEntity();
         newUser.setLogin(user.getLogin());
@@ -39,25 +36,17 @@ public class UserEntityService {
         return newUser;
     }
 
-    private void validationFeature(UserEntity user) {
-        //O usuário criado deve ter ao menos uma feature com Leitura/Escrita
-    }
+    private void validationFeature(UserEntity user) { }
 
     private void verificationAge(UserEntity user) {
-        //O usuário deve possuir mais de 18 anos
-        //ver uma maneira de calcular a idade, com base na data fornecida
-        //dataNascimento = user.getDtNascimento();
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         int dataAtual = 0;
         int dataNascimento = 0;
         Integer age = dataAtual - dataNascimento;
-        if (age <= 18) {
-            //Erro BAD REQUEST
-        }
+        if (age <= 18) {}
     }
 
     private void isUniqueLoginUser(UserDTO user) {
-        //Não pode haver nenhum outro usuário com o mesmo login
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByLoginAndSenha(user.getLogin(), user.getSenha());
         if(optionalUser.isPresent()){
@@ -66,7 +55,6 @@ public class UserEntityService {
     }
 
     private void isUniqueNameUser(UserDTO user) {
-        //Não pode haver nenhum outro usuário com o mesmo nome
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByNome(user.getNome());
         if(optionalUser.isPresent()){
