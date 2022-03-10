@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserEntityService {
 
     @Autowired
     UserEntityRepository userRepository;
