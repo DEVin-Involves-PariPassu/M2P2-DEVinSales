@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -31,6 +32,7 @@ public class UserFeatureEntity implements Serializable {
         this.id = id;
     }
 
+    @JsonIgnore
     public UserEntity getUser() {
         return user;
     }

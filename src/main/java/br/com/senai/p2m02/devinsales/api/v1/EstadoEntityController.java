@@ -38,6 +38,19 @@ public class EstadoEntityController {
         return ResponseEntity.ok(estadoEntities);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EstadoEntity> getById(
+            @PathVariable Long id,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if(!loggedUser.canRead("estado")){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        EstadoEntity estado = service.listarPorId(id);
+
+        return ResponseEntity.ok(estado);
+    }
+
     @PostMapping
     public ResponseEntity<Long> post(
             @Valid @RequestBody EstadoDTO estado,
@@ -54,18 +67,17 @@ public class EstadoEntityController {
 
         return ResponseEntity.created(location).body(idEstado);
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<EstadoEntity> getPorId(
-            @PathVariable long id,
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity <Void> delete(
+            @PathVariable Long id,
             @RequestAttribute("loggedUser") UserEntity loggedUser
     ){
-        if(!loggedUser.canRead("estado")){
+        if (!loggedUser.canWrite("estado")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        EstadoEntity estado = service.listarPorId(id);
-        if(estado == null){
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(estado);
+        service.deletar(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

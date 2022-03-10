@@ -4,8 +4,11 @@ import javax.validation.constraints.NotNull;
 
 public class ItemVendaDTO {
     private Long id;
+    // Não seria assim:
+    //@NotNull(message = "Id da item do item da venda é requerido")
+    //private Long itemVendaId;
 
-    @NotNull(message = "Id da venda é requerido")
+    @NotNull(message = "Id da item da venda é requerido")
     private Long vendaId;
 
     @NotNull(message = "Id do item é requerido")

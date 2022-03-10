@@ -36,20 +36,34 @@ public class EnderecoEntityController {
         return ResponseEntity.ok(enderecoEntities);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EnderecoEntity> get(
+    @GetMapping("/{id_address}")
+    public ResponseEntity<EnderecoEntity> getById(
             @PathVariable(name = "id_state") Long idEstado,
             @PathVariable(name = "id_city") Long idCidade,
-            @PathVariable (name = "id") Long id,
+            @PathVariable (name = "id_address") Long idEndereco,
             @RequestAttribute("loggedUser") UserEntity loggedUser
     ){
         if(!loggedUser.canRead("endereco")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        EnderecoEntity endereco = service.getById(idCidade, idEstado, id);
-        if(endereco == null){
-            return ResponseEntity.noContent().build();
-        }
+        EnderecoEntity endereco = service.listarPorId(idCidade, idEstado, idEndereco);
+
         return ResponseEntity.ok(endereco);
     }
+
+    @DeleteMapping("/{id_address}")
+    public ResponseEntity <Void> delete(
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @PathVariable (name = "id_address") Long idEndereco,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if (!loggedUser.canWrite("endereco")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.deletar(idEstado, idCidade, idEndereco);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
