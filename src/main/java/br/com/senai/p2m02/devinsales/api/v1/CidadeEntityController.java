@@ -34,6 +34,20 @@ public class CidadeEntityController {
 
     }
 
+    @GetMapping("/{id_city}")
+    public ResponseEntity<CidadeEntity> getById(
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @RequestAttribute("loggedUser") UserEntity loggedUser) {
+        if (!loggedUser.canRead("cidade")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        CidadeEntity cidadeEntity = service.listarPorId(idCidade,idEstado);
+
+        return ResponseEntity.ok(cidadeEntity);
+
+    }
+
     @DeleteMapping("/{id_city}")
     public  ResponseEntity<Void> delete(
             @PathVariable(name = "id_state") Long idEstado,
