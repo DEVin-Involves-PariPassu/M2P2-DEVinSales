@@ -30,26 +30,40 @@ public class CidadeEntityService {
     private EnderecoEntityRepository enderecoRepository;
 
     @Transactional
-    public List<CidadeEntity> listar(String nome, Long idEstado){
+    public List<CidadeEntity> listar(String nome, Long idEstado) {
         return cidadeRepository.findAll(Specification.where(
                 SpecificationsCidadeEntity.nome(nome).and(SpecificationsCidadeEntity.idEstado(idEstado))));
     }
+
     @Transactional
-    public CidadeEntity listarPorId(Long id, UserEntity usuario){
-        return cidadeRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Não existe cidade com o id " + id)
-        );
+    public CidadeEntity listarPorId(Long idCidade, Long idEstado) {
+        CidadeEntity cidadeEntity = cidadeRepository.findById(idCidade).orElseThrow(() ->
+                new EntityNotFoundException("Cidade não encontrada!"));
+
+        EstadoEntity estadoEntity = estadoRepository.findById(idEstado).orElseThrow(() ->
+                new EntityNotFoundException("Estado não encontrado!"));
+
+        if (!idEstado.equals(cidadeEntity.getEstado().getId())){
+            throw new IllegalArgumentException("O ID do estado não coincide com o ID especificado!");
+        }
+
+        return cidadeEntity;
+
     }
 
     @Transactional
-    public Long salvar(CidadeDTO cidadeDTO){
+    public Long salvar(CidadeDTO cidadeDTO, Long idEstado){
+        EstadoEntity estado = estadoRepository.findById(idEstado).orElseThrow(
+                () -> new EntityNotFoundException("Não existe estado com o id " + idEstado)
+        );
         CidadeEntity cidade = validateAndConvertDto(cidadeDTO);
+        cidade.setEstado(estado);
         cidade = cidadeRepository.save(cidade);
         return cidade.getId();
     }
 
     @Transactional
-    public void deletar(Long idCidade, Long idEstado){
+    public void deletar(Long idCidade, Long idEstado) {
         estadoRepository.findById(idEstado).orElseThrow(
                 () -> new EntityNotFoundException("Não existe estado com o id " + idEstado)
         );
@@ -58,11 +72,11 @@ public class CidadeEntityService {
                 () -> new EntityNotFoundException("Não existe cidade com o id " + idCidade)
         );
 
-        if (!idEstado.equals(cidadeEntity.getEstado().getId())){
+        if (!idEstado.equals(cidadeEntity.getEstado().getId())) {
             throw new IllegalArgumentException("O id do Estado passado não é o id do Estado dessa cidade");
         }
         List<EnderecoEntity> enderecos = enderecoRepository.findAll(Specification.where(SpecificationsEnderecoEntity.idCidade(idCidade)));
-        if (!enderecos.isEmpty()){
+        if (!enderecos.isEmpty()) {
             throw new EntityIsReferencedException("A cidade com id fornecido é referenciado por algum(ns) endereço(s)");
         }
         cidadeRepository.delete(cidadeEntity);

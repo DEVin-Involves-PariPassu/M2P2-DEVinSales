@@ -48,17 +48,17 @@ public class ItemVendaEntityService {
         Optional<VendaEntity> vendaOpt = this.vendaEntityRepository.findById(idVenda);
 
         if (vendaOpt.isEmpty() || itemVendaToUpdateOpt.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Venda ou item não encontrado.", HttpStatus.NOT_FOUND);
         }
 
         ItemVendaEntity itemVendaToUpdate = itemVendaToUpdateOpt.get();
         VendaEntity venda = vendaOpt.get();
         if (!itemVendaToUpdate.getVenda().getId().equals(venda.getId())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("O item não pertence a venda informada.", HttpStatus.BAD_REQUEST);
         }
 
         if (price.intValue() <= 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Preço não pode ser menor ou igual a 0.", HttpStatus.BAD_REQUEST);
         }
 
         itemVendaToUpdate.setPrecoUnitario(price);

@@ -38,36 +38,48 @@ public class CidadeEntityController {
 
     }
 
+    @GetMapping("/{id_city}")
+    public ResponseEntity<CidadeEntity> getById(
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @RequestAttribute("loggedUser") UserEntity loggedUser) {
+        if (!loggedUser.canRead("cidade")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        CidadeEntity cidadeEntity = service.listarPorId(idCidade,idEstado);
+
+        return ResponseEntity.ok(cidadeEntity);
+    }
+
     @PostMapping
     public ResponseEntity<Long> post(
             @Valid @RequestBody CidadeDTO cidade,
             @PathVariable(name = "id_state") Long idEstado,
             @RequestAttribute("loggedUser") UserEntity loggedUser
-    )   {
+    ) {
         if (!loggedUser.canWrite("cidade")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Long idCidade = service.salvar(cidade);
+        Long idCidade = service.salvar(cidade, idEstado);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(idCidade).toUri();
 
         return ResponseEntity.created(location).body(idCidade);
+
     }
 
-    @DeleteMapping("/{id_city}")
-    public  ResponseEntity<Void> delete(
-            @PathVariable(name = "id_state") Long idEstado,
-            @PathVariable(name = "id_city") Long idCidade,
-            @RequestAttribute("loggedUser") UserEntity loggedUser) {
-        if (!loggedUser.canWrite("cidade")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        @DeleteMapping("/{id_city}")
+        public ResponseEntity<Void> delete (
+                @PathVariable(name = "id_state") Long idEstado,
+                @PathVariable(name = "id_city") Long idCidade,
+                @RequestAttribute("loggedUser") UserEntity loggedUser){
+            if (!loggedUser.canWrite("cidade")) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+            service.deletar(idCidade, idEstado);
+
+            return ResponseEntity.noContent().build();
         }
-        service.deletar(idCidade, idEstado);
-
-        return ResponseEntity.noContent().build();
-    }
-
-
 }
