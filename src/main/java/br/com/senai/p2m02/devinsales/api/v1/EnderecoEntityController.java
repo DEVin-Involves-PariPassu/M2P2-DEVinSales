@@ -1,13 +1,18 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.service.EnderecoEntityService;
+import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -49,6 +54,25 @@ public class EnderecoEntityController {
         EnderecoEntity endereco = service.listarPorId(idCidade, idEstado, idEndereco);
 
         return ResponseEntity.ok(endereco);
+    }
+
+    @PostMapping
+    public ResponseEntity<Long> post(
+            @Valid @RequestBody EnderecoDTO endereco,
+            @PathVariable(name = "id_state") Long idEstado,
+            @PathVariable(name = "id_city") Long idCidade,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    )  {
+        if (!loggedUser.canWrite("endereco")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        Long idEndereco = service.salvar(endereco, idEstado, idCidade);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id_address}")
+                .buildAndExpand(idEstado).toUri();
+
+        return ResponseEntity.created(location).body(idEndereco);
     }
 
     @DeleteMapping("/{id_address}")
