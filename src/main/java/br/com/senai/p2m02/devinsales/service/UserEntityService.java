@@ -101,12 +101,14 @@ public class UserEntityService {
 
         isUniqueNameUser(user);
         isUniqueLoginUser(user);
+        LocalDate userAge = verificationDate(user);
+        verificationAge(userAge);
 
         UserEntity newUser = new UserEntity();
         newUser.setLogin(user.getLogin());
         newUser.setSenha(user.getSenha());
         newUser.setNome(user.getNome());
-        newUser.setDtNascimento(LocalDate.parse(user.getDtNascimento()));
+        newUser.setDtNascimento(userAge);
 
         return newUser;
     }
