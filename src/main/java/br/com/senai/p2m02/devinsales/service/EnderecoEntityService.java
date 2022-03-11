@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.service;
 
+import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
@@ -7,6 +8,7 @@ import br.com.senai.p2m02.devinsales.repository.CidadeEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.EnderecoEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.EstadoEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.SpecificationsEnderecoEntity;
+import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +94,43 @@ public class EnderecoEntityService {
         }
 
         enderecoRepository.delete(enderecoEntity);
+    }
+
+    @Transactional
+    public Long salvar(EnderecoDTO enderecoDTO, Long idEstado, Long idCidade){
+        EstadoEntity estadoEntity = estadoRepository.findById(idEstado).orElseThrow(() ->
+                new EntityNotFoundException("Não existe Estado com o id: " + idEstado));
+        CidadeEntity cidadeEntity = cidadeRepository.findById(idCidade).orElseThrow(() ->
+                new EntityNotFoundException("Não existe Cidade com o id: " + idCidade));
+        if(!idEstado.equals(cidadeEntity.getEstado().getId())){
+            throw new IllegalArgumentException("O ID do estado não coincide com o ID especificado!");
+        }
+        EnderecoEntity endereco = validateAndConvertDto(enderecoDTO, cidadeEntity);
+        endereco = enderecoRepository.save(endereco);
+        return endereco.getId();
+    }
+
+    private EnderecoEntity validateAndConvertDto(EnderecoDTO enderecoDTO, CidadeEntity idCidade){
+        existsRua(enderecoDTO);
+        existsNumero(enderecoDTO);
+        EnderecoEntity endereco = new EnderecoEntity();
+        endereco.setRua(enderecoDTO.getRua());
+        endereco.setNumero(enderecoDTO.getNumero());
+        endereco.setComplemento(enderecoDTO.getComplemento());
+        endereco.setCidade(idCidade);
+        return endereco;
+    }
+
+    private void existsRua(EnderecoDTO enderecoDTO){
+        if(enderecoDTO.getRua() == null){
+            throw new RequiredFieldMissingException("O campo rua é obrigatório.");
+        }
+    }
+
+    private void existsNumero(EnderecoDTO enderecoDTO){
+        if(enderecoDTO.getNumero() == null){
+            throw new RequiredFieldMissingException("Numero da rua é requerido! - 0 Para Endereço Sem Número.");
+        }
     }
 }
 
