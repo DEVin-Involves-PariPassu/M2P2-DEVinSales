@@ -11,14 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
-import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -74,18 +68,16 @@ public class UserEntityService {
         userFeatureEntityRepository.save(userFeatureEntity);
     }
 
-    UserEntityRepository userRepository;
-
     public Long salvar(UserDTO user){
         UserEntity newUser = validationsUser(user);
-        userRepository.save(newUser);
+        userEntityRepository.save(newUser);
         return newUser.getId();
     }
 
     public void atualizar(Long idUser, UserDTO userDTO){
         UserEntity user = updateUser(idUser, userDTO);
 
-        userRepository.save(user);
+        userEntityRepository.save(user);
     }
 
     public UserEntity updateUser(Long idUser, UserDTO userDTO){
@@ -94,7 +86,7 @@ public class UserEntityService {
         LocalDate dtNascimento = verificationDate(userDTO);
         verificationAge(dtNascimento);
 
-        UserEntity user = userRepository.findById(idUser).orElseThrow(
+        UserEntity user = userEntityRepository.findById(idUser).orElseThrow(
                 ()-> new EntityNotFoundException("Id de usuário inexistente.")
         );
         user.setLogin(userDTO.getLogin());
@@ -119,8 +111,6 @@ public class UserEntityService {
         return newUser;
     }
 
-    private void validationFeature(UserEntity user) { }
-
     private void verificationAge(LocalDate dtNascimento) {
         Period idade = Period.between(dtNascimento, LocalDate.now());
 
@@ -138,16 +128,18 @@ public class UserEntityService {
     }
 
     private void isUniqueLoginUser(UserDTO user) {
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByLogin(user.getLogin());
+        Optional<UserEntity> optionalUser = userEntityRepository.findUserEntityByLogin(user.getLogin());
         if(optionalUser.isPresent()){
             throw new EntityExistsException("Já existe um usuário cadastrado com este login: " + user.getLogin());
         }
     }
 
     private void isUniqueNameUser(UserDTO user) {
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByNome(user.getNome());
+        Optional<UserEntity> optionalUser = userEntityRepository.findUserEntityByNome(user.getNome());
         if(optionalUser.isPresent()){
             throw new EntityExistsException("Já existe este nome de usuário cadastrado: " + user.getNome());
         }
     }
+
+    private void validationFeature(UserEntity user) { }
 }
