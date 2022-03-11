@@ -1,6 +1,7 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 
+import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.service.CidadeEntityService;
@@ -8,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -32,6 +36,24 @@ public class CidadeEntityController {
         }
         return ResponseEntity.ok(cidadeEntities);
 
+    }
+
+    @PostMapping
+    public ResponseEntity<Long> post(
+            @Valid @RequestBody CidadeDTO cidade,
+            @PathVariable(name = "id_state") Long idEstado,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    )   {
+        if (!loggedUser.canWrite("cidade")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        Long idCidade = service.salvar(cidade);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(idCidade).toUri();
+
+        return ResponseEntity.created(location).body(idCidade);
     }
 
     @DeleteMapping("/{id_city}")
