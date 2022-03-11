@@ -25,7 +25,6 @@ public class UserEntityController {
         }
         Long userId = service.salvar(userDTO);
 
-
         return new ResponseEntity<>(userId, HttpStatus.CREATED);
     }
 

@@ -2,6 +2,7 @@ package br.com.senai.p2m02.devinsales.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class UserDTO {
 
@@ -18,13 +19,7 @@ public class UserDTO {
     private String dtNascimento;
 
     @NotBlank
-    private String feature;
-
-    @NotNull
-    private boolean read;
-
-    @NotNull
-    private boolean reawrite;
+    private List<FeatureDTO> features;
 
     public String getLogin() {
         return login;
@@ -58,28 +53,12 @@ public class UserDTO {
         this.dtNascimento = dtNascimento;
     }
 
-    public String getFeature() {
-        return feature;
+    public List<FeatureDTO> getFeatures() {
+        return features;
     }
 
-    public void setFeature(String feature) {
-        this.feature = feature;
-    }
-
-    public boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
-    public boolean isReawrite() {
-        return reawrite;
-    }
-
-    public void setReawrite(boolean reawrite) {
-        this.reawrite = reawrite;
+    public void setFeatures(List<FeatureDTO> features) {
+        this.features = features;
     }
 
     @Override
@@ -89,9 +68,7 @@ public class UserDTO {
                 ", senha='" + senha + '\'' +
                 ", nome='" + nome + '\'' +
                 ", dtNascimento='" + dtNascimento + '\'' +
-                ", feature='" + feature + '\'' +
-                ", read=" + read +
-                ", reawrite=" + reawrite +
+                ", features=" + features +
                 '}';
     }
 }
