@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CidadeEntityRepository extends CrudRepository <CidadeEntity, Long>,
         JpaSpecificationExecutor<CidadeEntity> {
+    Optional<CidadeEntity> findFirstByNome(String nome);
 }
