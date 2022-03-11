@@ -16,14 +16,11 @@ public class ItemVendaEntity {
     @SequenceGenerator(name = "itemvendager", sequenceName = "item_venda_id_ger", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)// Muitos itens para uma venda.??
-    //@OneToOne(cascade = CascadeType.ALL)
-    //@MapsId("idVenda") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
     private VendaEntity venda;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    //@MapsId("idProduto") Não precisa, pois já existe o atributo private Long id, isto é usado quando há chave primária composta.
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_produto", referencedColumnName = "id")
     private ProductEntity produto;
 
