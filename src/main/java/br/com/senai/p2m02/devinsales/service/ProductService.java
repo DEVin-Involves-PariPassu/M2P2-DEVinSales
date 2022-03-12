@@ -71,6 +71,14 @@ public class ProductService {
         }
     }
 
+    private void isUniqueOrTheSame(ProductDTO productDTO, Long id_produto) {
+        Optional<ProductEntity> optionalProduct = productRepository.findByNome(productDTO.getNome());
+        Optional<ProductEntity> optionalId = productRepository.findById(id_produto);
+        if(optionalProduct.isPresent() && !optionalId.isPresent()){
+            throw new EntityExistsException("Já existe um produto cadastrado com o nome " + productDTO.getNome());
+        }
+    }
+
     private void existsNome(ProductDTO productDTO){
         if(productDTO.getNome().isBlank()){
             throw new RequiredFieldMissingException("O nome do produto é obrigatório.");
@@ -156,7 +164,7 @@ public class ProductService {
         }
         if(productDTO.getNome() != null) {
             if (!productDTO.getNome().isBlank()) {
-                isUniqueNomeProduct(productDTO);
+                isUniqueOrTheSame(productDTO, id_produto);
             }
         }
         if (productDTO.getPreco_sugerido() != null){
