@@ -13,14 +13,16 @@ public class DeliveryEntity {
     @SequenceGenerator(name = "entregager", sequenceName = "entrega_id_seq", allocationSize = 1)
     private Long id;
 
-    @NotNull
-    private Long id_endereço;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_endereco", referencedColumnName = "id")
+    private EnderecoEntity endereco;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
     private VendaEntity venda;
 
     @NotNull
-    private LocalDate previsao_entrega;
+    private LocalDate previsaoEntrega;
 
     public Long getId() {
         return id;
@@ -30,30 +32,24 @@ public class DeliveryEntity {
         this.id = id;
     }
 
-    public Long getId_endereço() {
-        return id_endereço;
+    public EnderecoEntity getEndereco() {
+        return endereco;
     }
 
-    public void setId_endereço(Long id_endereço) {
-        this.id_endereço = id_endereço;
+    public void setEndereço(EnderecoEntity endereco) {
+        this.endereco = endereco;
     }
 
-    public LocalDate getPrevisao_entrega() {
-        return previsao_entrega;
+    public VendaEntity getVenda() { return venda; }
+
+    public void setVenda(VendaEntity venda) { this.venda = venda; }
+
+    public LocalDate getPrevisaoEntrega() {
+        return previsaoEntrega;
     }
 
-    public void setPrevisao_entrega(LocalDate previsao_entrega) {
-        this.previsao_entrega = previsao_entrega;
+    public void setPrevisaoEntrega(LocalDate previsaoEntrega) {
+        this.previsaoEntrega = previsaoEntrega;
     }
-
-    public VendaEntity getVenda() {
-        return venda;
-    }
-
-    public void setVenda(VendaEntity venda){
-
-        this.venda = venda;
-    }
-
 
 }
