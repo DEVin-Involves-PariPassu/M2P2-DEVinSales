@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class UserEntity {
         this.id = id;
     }
 
+    @JsonIgnore
     public Set<UserFeatureEntity> getUserFeatureEntities() {
         return userFeatureEntities;
     }
@@ -46,6 +48,7 @@ public class UserEntity {
         this.login = login;
     }
 
+    @JsonIgnore
     public String getSenha() {
         return senha;
     }
