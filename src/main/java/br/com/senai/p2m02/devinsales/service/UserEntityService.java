@@ -5,12 +5,11 @@ import br.com.senai.p2m02.devinsales.model.FeatureEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.UserFeatureEntity;
 import br.com.senai.p2m02.devinsales.model.UserFeatureId;
-import br.com.senai.p2m02.devinsales.repository.FeatureEntityRepository;
-import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
-import br.com.senai.p2m02.devinsales.repository.UserFeatureEntityRepository;
+import br.com.senai.p2m02.devinsales.repository.*;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
@@ -33,6 +32,20 @@ public class UserEntityService {
 
     @Autowired
     private UserFeatureEntityRepository userFeatureEntityRepository;
+
+    public List<UserEntity> listar(String nome, String dtNascimentoMinStr, String dtNascimentoMaxStr) {
+        LocalDate dtNascimentoMin = verificationDate(dtNascimentoMinStr);
+        LocalDate dtNascimentoMax = verificationDate(dtNascimentoMaxStr);
+        return userEntityRepository.findAll(
+                Specification.where(
+                        SpecificationsUserEntity.nome(nome).and(
+                                SpecificationsUserEntity.dtNascimentoMin(dtNascimentoMin).and(
+                                        SpecificationsUserEntity.dtNascimentoMax(dtNascimentoMax)
+                                )
+                        )
+                )
+        );
+    }
 
     public void patchPermissao(Long idUser, String nomeFeature, String tipoPermissao) {
         UserEntity userEntity = userEntityRepository.findById(idUser).orElseThrow(() ->
@@ -125,25 +138,29 @@ public class UserEntityService {
     }
 
     private void existsNome(UserDTO user) {
-        if (user.getNome() == null){
+        if (user.getNome() == null) {
             throw new RequiredFieldMissingException("O campo Nome é obrigatório");
         }
     }
+
     private void existsLogin(UserDTO user) {
-        if (user.getLogin() == null){
+        if (user.getLogin() == null) {
             throw new RequiredFieldMissingException("O campo Login é obrigatório");
         }
     }
+
     private void existsSenha(UserDTO user) {
-        if (user.getSenha() == null){
+        if (user.getSenha() == null) {
             throw new RequiredFieldMissingException("O campo Senha é obrigatório");
         }
     }
+
     private void existsDtNascimento(UserDTO user) {
-        if (user.getDtNascimento() == null){
+        if (user.getDtNascimento() == null) {
             throw new RequiredFieldMissingException("O campo dtNascimento é obrigatório");
         }
     }
+
     private void verificationAge(LocalDate dtNascimento) {
         Period idade = Period.between(dtNascimento, LocalDate.now());
 
@@ -156,6 +173,16 @@ public class UserEntityService {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dtNascimento = LocalDate.parse(userDTO.getDtNascimento(), dateTimeFormatter);
+
+        return dtNascimento;
+    }
+
+    private LocalDate verificationDate(String dtNascimentoStr) throws DateTimeParseException {
+        if (dtNascimentoStr == null) {
+            return null;
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dtNascimento = LocalDate.parse(dtNascimentoStr, dateTimeFormatter);
 
         return dtNascimento;
     }
