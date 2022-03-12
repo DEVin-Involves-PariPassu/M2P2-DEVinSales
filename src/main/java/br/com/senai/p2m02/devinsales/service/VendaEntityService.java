@@ -1,10 +1,7 @@
 package br.com.senai.p2m02.devinsales.service;
 
-import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.model.VendaEntity;
-import br.com.senai.p2m02.devinsales.repository.SpecificationsVendaEntity;
-import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
-import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
+import br.com.senai.p2m02.devinsales.model.*;
+import br.com.senai.p2m02.devinsales.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +25,12 @@ public class VendaEntityService {
 
     @Autowired
     private UserEntityRepository userEntityRepository;
+
+    @Autowired
+    private EnderecoEntityRepository enderecoEntityRepository;
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
     @Transactional
     public List<VendaEntity> listarVendas(Long idVendedor){
@@ -104,5 +108,30 @@ public class VendaEntityService {
         return comprador;
     }
 
+    private Long validateEndereco(DeliveryEntity delivery) {
+        EnderecoEntity endereco = delivery.getEndereco();
+        if (endereco != null) {
+           return delivery.getEndereco().getId();
+        }
+        throw new IllegalArgumentException("Endereço não fornecido.");
+    }
 
+    public Long postEntrega(DeliveryEntity delivery, Long idVenda) {
+
+        VendaEntity venda = vendaEntityRepository.findById(idVenda).orElseThrow(() ->
+                new EntityNotFoundException("Venda não encontrada: " + idVenda));
+
+        Long idEndereco = validateEndereco(delivery);
+
+        enderecoEntityRepository.findById(idEndereco).orElseThrow(() ->
+                new EntityNotFoundException("Endereço não encontrado: " + idEndereco));
+
+        if(delivery.getPrevisaoEntrega() == null) {
+            delivery.setPrevisaoEntrega(LocalDate.now().plusDays(7));
+        }
+
+        delivery.setVenda(venda);
+        delivery = deliveryRepository.save(delivery);
+        return delivery.getId();
+    }
 }
