@@ -49,5 +49,16 @@ public class VendaEntityController {
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
 
+    @PostMapping("/user/{id_user}/sales")
+    public ResponseEntity<Long> post(
+            @PathVariable("id_user") Long idUser,
+            @RequestAttribute("loggedUser") UserEntity loggedUser,
+            @RequestAttribute(required = false) String dataVenda
+    ) {
+        if (!loggedUser.canRead("venda")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(idUser, HttpStatus.CREATED);
+    }
 
 }
