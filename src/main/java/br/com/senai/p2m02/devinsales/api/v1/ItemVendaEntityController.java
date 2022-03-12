@@ -37,8 +37,8 @@ public class ItemVendaEntityController {
 
     private ProductEntity productEntity;
 
-    @PostMapping("/")
-    public ResponseEntity<Void> post(
+    @PostMapping
+    public ResponseEntity<Long> post(
 
             @PathVariable(name = "id_venda") Integer idVenda,
             @Valid @RequestBody ItemVendaDTO itemVenda,
@@ -51,37 +51,36 @@ public class ItemVendaEntityController {
         VendaEntity vendaEntity = vendaEntityRepository.findById(Long.valueOf(idVenda)).orElseThrow(
                 () -> new EntityNotFoundException(HttpStatus.NOT_FOUND.name())
         );
+        if(itemVenda.getItemId()==null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        ProductEntity productEntity = productRepository.findById(itemVenda.getItemId()).orElseThrow(
+                () -> new EntityNotFoundException(HttpStatus.NOT_FOUND.name())
+        );
         Integer idProduto = Math.toIntExact(itemVenda.getItemId());
-        BigDecimal precoUnitario = BigDecimal.valueOf(itemVenda.getPrecoUnitario());
-        Integer quantidade = itemVenda.getQuantidade();
+        BigDecimal precoUnitario = itemVenda.getPrecoUnitario()!=null ? BigDecimal.valueOf(itemVenda.getPrecoUnitario()):productEntity.getPreco_sugerido();
+        Integer quantidade = itemVenda.getQuantidade()!=null? itemVenda.getQuantidade() : 1;
         ItemVendaEntity item = itemVendaEntityRepository.findById(Long.valueOf(idProduto)).orElseThrow(
                 () -> new EntityNotFoundException(HttpStatus.NOT_FOUND.name())
         );
-        if(idProduto==null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+
         if(precoUnitario.intValue() <= 0| quantidade <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if(precoUnitario==null){
 
-             precoUnitario = productEntity.getPreco_sugerido();
-        }
-        if(quantidade==null){
-            quantidade = 1;
-        }
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         itemVendaEntity.setVenda(vendaEntity);
         itemVendaEntity.setProduto(productEntity);
         itemVendaEntity.setQuantidade(quantidade);
         itemVendaEntity.setPrecoUnitario(precoUnitario);
         itemVendaEntityRepository.save(itemVendaEntity);
-        new ResponseEntity<>(itemVendaEntity.getId(), HttpStatus.CREATED);
+        return new ResponseEntity<>(itemVendaEntity.getId(), HttpStatus.CREATED);
 
 
 
 
-       return null;
+
+
     }
 
     @PatchMapping("/{id_item}/quantity/{quantity}")
