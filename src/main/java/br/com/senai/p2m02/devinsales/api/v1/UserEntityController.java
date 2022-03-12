@@ -1,6 +1,7 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
+import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -16,6 +18,23 @@ import javax.validation.Valid;
 public class UserEntityController {
    @Autowired
     private UserEntityService service;
+
+    @GetMapping
+    public ResponseEntity<List<UserEntity>> get(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String dtNascimentoMin,
+            @RequestParam(required = false) String dtNascimentoMax,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ) {
+        if (!loggedUser.canRead("usuario")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<UserEntity> userEntities = service.listar(nome, dtNascimentoMin, dtNascimentoMax);
+        if (userEntities.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(userEntities);
+    }
 
     @PostMapping
     public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity user,
