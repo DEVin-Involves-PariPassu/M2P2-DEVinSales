@@ -1,12 +1,12 @@
 package br.com.senai.p2m02.devinsales.model;
 
 import jakarta.persistence.*;
+import org.springframework.context.annotation.Bean;
 
 import java.math.BigDecimal;
 
 @Entity(name="produto")
 public class ProductEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "productger")
     @SequenceGenerator(name = "productger", sequenceName = "produto_id_seq", allocationSize = 1)
@@ -59,6 +59,7 @@ public class ProductEntity {
                 ", preco_sugerido=" + preco_sugerido +
                 '}';
     }
+
 
 
 }
