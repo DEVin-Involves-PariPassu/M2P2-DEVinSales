@@ -84,12 +84,13 @@ public class VendaEntityController {
     public ResponseEntity<Long> post(
             @PathVariable("id_user") Long idUser,
             @RequestAttribute("loggedUser") UserEntity loggedUser,
-            @RequestAttribute(required = false) String dataVenda
+            @Valid @RequestBody VendaEntity vendaEntity
     ) {
         if (!loggedUser.canRead("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(idUser, HttpStatus.CREATED);
+        Long vendaId = service.salvar(idUser, vendaEntity);
+        return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
 
     @PostMapping("/{id_venda}/deliver")

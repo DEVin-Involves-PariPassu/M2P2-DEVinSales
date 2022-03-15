@@ -110,6 +110,19 @@ public class VendaEntityService {
         return null;
     }
 
+    private ResponseEntity<Void> validateBuyer(Long idUser, VendaEntity vendaEntity) {
+        if (!this.hasUserId(idUser)) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        } else if (vendaEntity.getComprador() == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        if (!this.hasUserId(vendaEntity.getVendedor().getId())) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        return null;
+    }
+
     private UserEntity changeCompradorId(Long idUser){
         UserEntity comprador = this.getUser(idUser);
         return comprador;
