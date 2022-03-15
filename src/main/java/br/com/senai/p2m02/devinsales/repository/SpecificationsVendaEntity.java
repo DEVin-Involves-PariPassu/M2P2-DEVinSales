@@ -9,4 +9,9 @@ public class SpecificationsVendaEntity {
     public static Specification<VendaEntity> idVendedor(Long idVendedor){
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("vendedor"), idVendedor);
     }
+
+    //WHERE comprador = :idComprador
+    public static Specification<VendaEntity> idComprador(Long idComprador){
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("comprador"), idComprador);
+    }
 }
