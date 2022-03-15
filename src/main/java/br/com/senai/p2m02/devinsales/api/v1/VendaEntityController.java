@@ -13,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/sales")
@@ -20,9 +21,6 @@ public class VendaEntityController {
 
     @Autowired
     private VendaEntityService service;
-
-    @Autowired
-    private VendaEntityRepository repository;
 
     @GetMapping("/{id_venda}")
     public ResponseEntity<VendaEntity> getById(
@@ -38,6 +36,21 @@ public class VendaEntityController {
         return ResponseEntity.ok(vendaEntity);
     }
 
+    @GetMapping("user/{id_user}/sales")
+    public ResponseEntity<List<VendaEntity>> get (
+            @PathVariable (name = "id_user") Long idVendedor,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if (!loggedUser.canRead("venda")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<VendaEntity> vendaEntities = service.listarVendas(idVendedor);
+        if (vendaEntities.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vendaEntities);
+    }
+
     @PostMapping("/user/{id_user}/buy")
     public ResponseEntity<Long> postVenda(
             @Valid @RequestBody VendaEntity vendaEntity,
@@ -47,7 +60,6 @@ public class VendaEntityController {
         if(!loggedUser.canWrite("venda")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-
         Long vendaId = service.salvar(idUser, vendaEntity);
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
