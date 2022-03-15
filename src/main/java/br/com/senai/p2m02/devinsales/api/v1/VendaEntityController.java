@@ -51,6 +51,7 @@ public class VendaEntityController {
         return ResponseEntity.ok(vendaEntities);
     }
 
+
     @GetMapping("user/{id_user}/buy")
     public ResponseEntity<List<VendaEntity>> getmap (
             @PathVariable (name = "id_user") Long idComprador,
@@ -75,7 +76,6 @@ public class VendaEntityController {
         if(!loggedUser.canWrite("venda")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-
         Long vendaId = service.salvar(idUser, vendaEntity);
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
