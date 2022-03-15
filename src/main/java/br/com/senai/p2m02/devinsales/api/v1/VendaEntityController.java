@@ -36,6 +36,36 @@ public class VendaEntityController {
         return ResponseEntity.ok(vendaEntity);
     }
 
+    @GetMapping("user/{id_user}/sales")
+    public ResponseEntity<List<VendaEntity>> get (
+            @PathVariable (name = "id_user") Long idVendedor,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if (!loggedUser.canRead("venda")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<VendaEntity> vendaEntities = service.listarVendas(idVendedor);
+        if (vendaEntities.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vendaEntities);
+    }
+
+    @GetMapping("user/{id_user}/buy")
+    public ResponseEntity<List<VendaEntity>> getmap (
+            @PathVariable (name = "id_user") Long idComprador,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ){
+        if (!loggedUser.canRead("venda")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<VendaEntity> vendaEntities = service.listarComprador(idComprador);
+        if (vendaEntities.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vendaEntities);
+    }
+
     @PostMapping("/user/{id_user}/buy")
     public ResponseEntity<Long> postVenda(
             @Valid @RequestBody VendaEntity vendaEntity,
