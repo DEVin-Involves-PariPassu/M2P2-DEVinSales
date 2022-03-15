@@ -43,8 +43,15 @@ public class VendaEntityService {
     @Transactional
     public VendaEntity listarPorId(Long id) {
         return vendaEntityRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Não existe venda " + id)
-        );
+                () -> new EntityNotFoundException("Não existe venda " + id));
+    }
+
+    @Transactional
+    public List<VendaEntity> listarComprador(Long idComprador){
+        userEntityRepository.findById(idComprador).orElseThrow(()->new EntityNotFoundException("Não existe comprador com id" +idComprador));
+        return vendaEntityRepository.findAll(Specification.where(
+                SpecificationsVendaEntity.idComprador(idComprador)
+        ));
     }
 
     @Transactional
