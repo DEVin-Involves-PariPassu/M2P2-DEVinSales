@@ -13,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/sales")
@@ -20,9 +21,6 @@ public class VendaEntityController {
 
     @Autowired
     private VendaEntityService service;
-
-    @Autowired
-    private VendaEntityRepository repository;
 
     @GetMapping("/{id_venda}")
     public ResponseEntity<VendaEntity> getById(
