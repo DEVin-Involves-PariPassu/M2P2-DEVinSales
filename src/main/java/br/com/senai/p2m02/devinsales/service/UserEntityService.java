@@ -1,15 +1,15 @@
 package br.com.senai.p2m02.devinsales.service;
 
 import br.com.senai.p2m02.devinsales.dto.FeatureDTO;
-import br.com.senai.p2m02.devinsales.model.FeatureEntity;
-import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.model.UserFeatureEntity;
-import br.com.senai.p2m02.devinsales.model.UserFeatureId;
+import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.*;
+import br.com.senai.p2m02.devinsales.service.exception.EntityIsReferencedException;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
@@ -240,5 +240,18 @@ public class UserEntityService {
         return featureEntity;
     }
 
+    @Transactional
+    public void delete(Long id){
+       UserEntity userEntity = userEntityRepository.findById(id).orElseThrow(
+               () -> new EntityNotFoundException("User with id " + id + " was not found."));
 
+       userEntityRepository.delete(userEntity);
+    }
+
+    @Transactional
+    public UserEntity findById(Long id){
+        return userEntityRepository.findUserEntityById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + id + " was not found." )
+        );
+    }
 }
