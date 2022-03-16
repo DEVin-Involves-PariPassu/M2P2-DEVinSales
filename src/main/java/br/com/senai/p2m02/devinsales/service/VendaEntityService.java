@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -71,13 +72,13 @@ public class VendaEntityService {
     }
 
     @Transactional
-    public Long salvar(Long idUser, VendaEntity vendaEntity){
-        VendaEntity venda = validarVenda(idUser, vendaEntity);
+    public Long salvarBuy(Long idUser, VendaEntity vendaEntity){
+        VendaEntity venda = validarVendaBuy(idUser, vendaEntity);
         vendaEntityRepository.save(venda);
         return venda.getId();
     }
 
-    private VendaEntity validarVenda(Long idUser, VendaEntity vendaEntity){
+    private VendaEntity validarVendaBuy(Long idUser, VendaEntity vendaEntity){
         existsDate(vendaEntity);
         UserEntity comprador = changeCompradorId(idUser);
         validateUsers(idUser, vendaEntity);
@@ -88,9 +89,32 @@ public class VendaEntityService {
         return venda;
     }
 
+    @Transactional
+    public Long salvarSale(Long idUser, VendaEntity vendaEntity){
+        VendaEntity venda = validarVendaSale(idUser, vendaEntity);
+        vendaEntityRepository.save(venda);
+        return venda.getId();
+    }
+
+    private VendaEntity validarVendaSale(Long idUser, VendaEntity vendaEntity){
+        existsDate(vendaEntity);
+        UserEntity vendedor = changeVendedorId(idUser);
+        validateBuyer(idUser, vendaEntity);
+        VendaEntity venda = new VendaEntity();
+        venda.setDataVenda(vendaEntity.getDataVenda());
+        venda.setComprador(vendaEntity.getComprador());
+        venda.setVendedor(vendedor);
+        return venda;
+    }
+
+    private UserEntity changeVendedorId(Long idUser){
+        UserEntity vendedor = this.getUser(idUser);
+        return vendedor;
+    }
+
     private VendaEntity existsDate(VendaEntity vendaEntity){
         if(vendaEntity.getDataVenda() == null){
-            LocalDate agora = LocalDate.now();
+            LocalDateTime agora = LocalDateTime.now();
             vendaEntity.setDataVenda(agora);
         }
         VendaEntity venda = new VendaEntity();
@@ -115,13 +139,14 @@ public class VendaEntityService {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         } else if (vendaEntity.getComprador() == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } else if (vendaEntity.getVendedor() != null) {
+            if (!this.hasUserId(vendaEntity.getVendedor().getId())) {
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            }
         }
-        if (!this.hasUserId(vendaEntity.getVendedor().getId())) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return null;
         }
 
-        return null;
-    }
 
     private UserEntity changeCompradorId(Long idUser){
         UserEntity comprador = this.getUser(idUser);

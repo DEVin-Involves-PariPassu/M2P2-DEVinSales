@@ -76,7 +76,7 @@ public class VendaEntityController {
         if(!loggedUser.canWrite("venda")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Long vendaId = service.salvar(idUser, vendaEntity);
+        Long vendaId = service.salvarBuy(idUser, vendaEntity);
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
 
@@ -89,7 +89,7 @@ public class VendaEntityController {
         if (!loggedUser.canRead("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Long vendaId = service.salvar(idUser, vendaEntity);
+        Long vendaId = service.salvarSale(idUser, vendaEntity);
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
 
