@@ -93,6 +93,18 @@ public class VendaEntityController {
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
     }
 
+    @GetMapping("/deliver")
+    public ResponseEntity<Long> get(
+            @PathVariable(value = "id_endereco" )@RequestParam(required = false) int idEndereco,
+            @PathVariable(value = "id_venda")@RequestParam(required = false) int idVenda,
+            @RequestAttribute("loggedUser") UserEntity loggedUser
+    ) {
+        if (!loggedUser.canRead("vendas")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        return null;
+    }
+
     @PostMapping("/{id_venda}/deliver")
     public ResponseEntity<Long> createDelivery(
             @RequestBody DeliveryEntity delivery,
