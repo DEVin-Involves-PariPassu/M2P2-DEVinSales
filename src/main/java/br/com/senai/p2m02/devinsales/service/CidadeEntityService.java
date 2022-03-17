@@ -31,12 +31,16 @@ public class CidadeEntityService {
 
     @Transactional
     public List<CidadeEntity> listar(String nome, Long idEstado) {
+        EstadoEntity estadoEntity = estadoRepository.findById(idEstado).orElseThrow(() ->
+                new EntityNotFoundException("Estado não encontrado!"));
         return cidadeRepository.findAll(Specification.where(
                 SpecificationsCidadeEntity.nome(nome).and(SpecificationsCidadeEntity.idEstado(idEstado))));
+
     }
 
     @Transactional
     public CidadeEntity listarPorId(Long idCidade, Long idEstado) {
+
         CidadeEntity cidadeEntity = cidadeRepository.findById(idCidade).orElseThrow(() ->
                 new EntityNotFoundException("Cidade não encontrada!"));
 
