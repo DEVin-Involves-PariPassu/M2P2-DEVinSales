@@ -34,8 +34,8 @@ public class VendaEntityService {
     private DeliveryRepository deliveryRepository;
 
     @Transactional
-    public List<VendaEntity> listarVendas(Long idVendedor){
-        userEntityRepository.findById(idVendedor).orElseThrow(()->new EntityNotFoundException("Não existe vendedor com ID " +idVendedor));
+    public List<VendaEntity> listarVendas(Long idVendedor) {
+        userEntityRepository.findById(idVendedor).orElseThrow(() -> new EntityNotFoundException("Não existe vendedor com ID " + idVendedor));
         return vendaEntityRepository.findAll(Specification.where(
                 SpecificationsVendaEntity.idVendedor(idVendedor)
         ));
@@ -48,40 +48,34 @@ public class VendaEntityService {
     }
 
     @Transactional
-    public List<VendaEntity> listarComprador(Long idComprador){
-        userEntityRepository.findById(idComprador).orElseThrow(()->new EntityNotFoundException("Não existe comprador com id" +idComprador));
+    public List<VendaEntity> listarComprador(Long idComprador) {
+        userEntityRepository.findById(idComprador).orElseThrow(() -> new EntityNotFoundException("Não existe comprador com id" + idComprador));
         return vendaEntityRepository.findAll(Specification.where(
                 SpecificationsVendaEntity.idComprador(idComprador)
         ));
     }
 
     @Transactional
-    public boolean hasUserId(Long id_user){
-        Optional<UserEntity> user = userEntityRepository.findById(id_user);
-        if (user.isPresent()){
-            return true;
-        }
-        return false;
+    public UserEntity getUser(Long idUser) {
+        UserEntity user = userEntityRepository.findById(idUser).orElseThrow(
+                () -> new EntityNotFoundException("Não existe usuario com id " + idUser)
+        );
+        return user;
     }
 
-    @Transactional
-    public UserEntity getUser(Long id_user){
-        Optional<UserEntity> user = userEntityRepository.findById(id_user);
-        UserEntity userEntity = user.get();
-        return userEntity;
-    }
 
     @Transactional
-    public Long salvarBuy(Long idUser, VendaEntity vendaEntity){
+    public Long salvarBuy(Long idUser, VendaEntity vendaEntity) {
         VendaEntity venda = validarVendaBuy(idUser, vendaEntity);
         vendaEntityRepository.save(venda);
         return venda.getId();
     }
 
-    private VendaEntity validarVendaBuy(Long idUser, VendaEntity vendaEntity){
+    private VendaEntity validarVendaBuy(Long idUser, VendaEntity vendaEntity) {
         existsDate(vendaEntity);
         UserEntity comprador = changeCompradorId(idUser);
         validateUsers(idUser, vendaEntity);
+
         VendaEntity venda = new VendaEntity();
         venda.setDataVenda(vendaEntity.getDataVenda());
         venda.setVendedor(vendaEntity.getVendedor());
@@ -89,31 +83,8 @@ public class VendaEntityService {
         return venda;
     }
 
-    @Transactional
-    public Long salvarSale(Long idUser, VendaEntity vendaEntity){
-        VendaEntity venda = validarVendaSale(idUser, vendaEntity);
-        vendaEntityRepository.save(venda);
-        return venda.getId();
-    }
-
-    private VendaEntity validarVendaSale(Long idUser, VendaEntity vendaEntity){
-        existsDate(vendaEntity);
-        UserEntity vendedor = changeVendedorId(idUser);
-        validateBuyer(idUser, vendaEntity);
-        VendaEntity venda = new VendaEntity();
-        venda.setDataVenda(vendaEntity.getDataVenda());
-        venda.setComprador(vendaEntity.getComprador());
-        venda.setVendedor(vendedor);
-        return venda;
-    }
-
-    private UserEntity changeVendedorId(Long idUser){
-        UserEntity vendedor = this.getUser(idUser);
-        return vendedor;
-    }
-
-    private VendaEntity existsDate(VendaEntity vendaEntity){
-        if(vendaEntity.getDataVenda() == null){
+    private VendaEntity existsDate(VendaEntity vendaEntity) {
+        if (vendaEntity.getDataVenda() == null) {
             LocalDateTime agora = LocalDateTime.now();
             vendaEntity.setDataVenda(agora);
         }
@@ -122,41 +93,62 @@ public class VendaEntityService {
         return venda;
     }
 
-    private ResponseEntity<Void> validateUsers(Long idUser, VendaEntity vendaEntity){
-        if(!this.hasUserId(idUser)){
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }else if(vendaEntity.getVendedor() != null){
-            if(!this.hasUserId(vendaEntity.getVendedor().getId())){
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
+    private UserEntity changeCompradorId(Long idUser) {
+        UserEntity comprador = this.getUser(idUser);
+        return comprador;
+    }
+
+    private ResponseEntity<Void> validateUsers(Long idUser, VendaEntity vendaEntity) {
+        if (this.getUser(idUser) == null) {
+            System.out.println("ID Null");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else if (vendaEntity.getVendedor() != null) {
+            if (this.getUser(vendaEntity.getVendedor().getId()) == null) {
+               return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
-
         return null;
     }
 
+
+    //****EDVAN***
+    @Transactional
+    public Long salvarSale(Long idUser, VendaEntity vendaEntity) {
+        VendaEntity venda = validarVendaSale(idUser, vendaEntity);
+        vendaEntityRepository.save(venda);
+        return venda.getId();
+    }
+
+    private VendaEntity validarVendaSale(Long idUser, VendaEntity vendaEntity) {
+        existsDate(vendaEntity);
+        UserEntity vendedor = changeVendedorId(idUser);
+        validateBuyer(idUser, vendaEntity);
+
+        VendaEntity venda = new VendaEntity();
+        venda.setDataVenda(vendaEntity.getDataVenda());
+        venda.setComprador(vendaEntity.getComprador());
+        venda.setVendedor(vendedor);
+        return venda;
+    }
+
+    private UserEntity changeVendedorId(Long idUser) {
+        UserEntity vendedor = this.getUser(idUser);
+        return vendedor;
+    }
+
     private ResponseEntity<Void> validateBuyer(Long idUser, VendaEntity vendaEntity) {
-        if (!this.hasUserId(idUser)) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        } else if (vendaEntity.getComprador() == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        } else if (vendaEntity.getVendedor() != null) {
-            if (!this.hasUserId(vendaEntity.getVendedor().getId())) {
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
-            }
+        if (this.getUser(idUser) == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else if (this.getUser(vendaEntity.getComprador().getId()) == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-            return null;
-        }
-
-
-    private UserEntity changeCompradorId(Long idUser){
-        UserEntity comprador = this.getUser(idUser);
-        return comprador;
+        return null;
     }
 
     private Long validateEndereco(DeliveryEntity delivery) {
         EnderecoEntity endereco = delivery.getEndereco();
         if (endereco != null) {
-           return delivery.getEndereco().getId();
+            return delivery.getEndereco().getId();
         }
         throw new IllegalArgumentException("Endereço não fornecido.");
     }
@@ -171,7 +163,7 @@ public class VendaEntityService {
         enderecoEntityRepository.findById(idEndereco).orElseThrow(() ->
                 new EntityNotFoundException("Endereço não encontrado: " + idEndereco));
 
-        if(delivery.getPrevisaoEntrega() == null) {
+        if (delivery.getPrevisaoEntrega() == null) {
             delivery.setPrevisaoEntrega(LocalDate.now().plusDays(7));
         }
 
