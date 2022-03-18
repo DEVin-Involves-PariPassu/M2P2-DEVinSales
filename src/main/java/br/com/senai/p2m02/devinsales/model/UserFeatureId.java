@@ -1,7 +1,6 @@
 package br.com.senai.p2m02.devinsales.model;
 
 import jakarta.persistence.Embeddable;
-
 import java.io.Serializable;
 import java.util.Objects;
 

@@ -3,18 +3,15 @@ package br.com.senai.p2m02.devinsales.service;
 import br.com.senai.p2m02.devinsales.dto.FeatureDTO;
 import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.*;
-import br.com.senai.p2m02.devinsales.service.exception.EntityIsReferencedException;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
 import jakarta.persistence.EntityExistsException;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -170,7 +167,6 @@ public class UserEntityService {
     }
 
     private LocalDate verificationDate(UserDTO userDTO) throws DateTimeParseException {
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dtNascimento = LocalDate.parse(userDTO.getDtNascimento(), dateTimeFormatter);
 
