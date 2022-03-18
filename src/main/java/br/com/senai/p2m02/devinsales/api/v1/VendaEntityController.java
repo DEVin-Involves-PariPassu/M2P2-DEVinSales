@@ -3,7 +3,6 @@ package br.com.senai.p2m02.devinsales.api.v1;
 import br.com.senai.p2m02.devinsales.model.DeliveryEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
-import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import br.com.senai.p2m02.devinsales.service.VendaEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,15 +36,15 @@ public class VendaEntityController {
     }
 
     @GetMapping("user/{id_user}/sales")
-    public ResponseEntity<List<VendaEntity>> get (
-            @PathVariable (name = "id_user") Long idVendedor,
+    public ResponseEntity<List<VendaEntity>> get(
+            @PathVariable(name = "id_user") Long idVendedor,
             @RequestAttribute("loggedUser") UserEntity loggedUser
-    ){
+    ) {
         if (!loggedUser.canRead("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<VendaEntity> vendaEntities = service.listarVendas(idVendedor);
-        if (vendaEntities.isEmpty()){
+        if (vendaEntities.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(vendaEntities);
@@ -53,15 +52,15 @@ public class VendaEntityController {
 
 
     @GetMapping("user/{id_user}/buy")
-    public ResponseEntity<List<VendaEntity>> getmap (
-            @PathVariable (name = "id_user") Long idComprador,
+    public ResponseEntity<List<VendaEntity>> getmap(
+            @PathVariable(name = "id_user") Long idComprador,
             @RequestAttribute("loggedUser") UserEntity loggedUser
-    ){
+    ) {
         if (!loggedUser.canRead("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<VendaEntity> vendaEntities = service.listarComprador(idComprador);
-        if (vendaEntities.isEmpty()){
+        if (vendaEntities.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(vendaEntities);
@@ -72,8 +71,8 @@ public class VendaEntityController {
             @Valid @RequestBody VendaEntity vendaEntity,
             @RequestAttribute("loggedUser") UserEntity loggedUser,
             @PathVariable("id_user") Long idUser
-    ){
-        if(!loggedUser.canWrite("venda")){
+    ) {
+        if (!loggedUser.canWrite("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Long vendaId = service.salvarBuy(idUser, vendaEntity);
@@ -86,8 +85,11 @@ public class VendaEntityController {
             @RequestAttribute("loggedUser") UserEntity loggedUser,
             @Valid @RequestBody VendaEntity vendaEntity
     ) {
-        if (!loggedUser.canRead("venda")) {
+        if (!loggedUser.canWrite("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (vendaEntity.getComprador() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Long vendaId = service.salvarSale(idUser, vendaEntity);
         return new ResponseEntity<>(vendaId, HttpStatus.CREATED);
@@ -95,8 +97,8 @@ public class VendaEntityController {
 
     @GetMapping("/deliver")
     public ResponseEntity<Long> get(
-            @PathVariable(value = "id_endereco" )@RequestParam(required = false) int idEndereco,
-            @PathVariable(value = "id_venda")@RequestParam(required = false) int idVenda,
+            @PathVariable(value = "id_endereco") @RequestParam(required = false) int idEndereco,
+            @PathVariable(value = "id_venda") @RequestParam(required = false) int idVenda,
             @RequestAttribute("loggedUser") UserEntity loggedUser
     ) {
         if (!loggedUser.canRead("vendas")) {
@@ -110,7 +112,7 @@ public class VendaEntityController {
             @RequestBody DeliveryEntity delivery,
             @PathVariable(name = "id_venda") Long idVenda,
             @RequestAttribute("loggedUser") UserEntity loggedUser
-    )  {
+    ) {
         if (!loggedUser.canWrite("entrega")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
