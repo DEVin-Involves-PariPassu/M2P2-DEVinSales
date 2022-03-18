@@ -1,9 +1,7 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
-import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.model.UserFeatureEntity;
 import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

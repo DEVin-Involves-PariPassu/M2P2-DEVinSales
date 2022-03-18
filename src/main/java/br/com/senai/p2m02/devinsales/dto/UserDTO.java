@@ -1,7 +1,6 @@
 package br.com.senai.p2m02.devinsales.dto;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class UserDTO {
