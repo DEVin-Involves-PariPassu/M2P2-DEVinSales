@@ -1,16 +1,20 @@
 package br.com.senai.p2m02.devinsales.service;
 
+
+import br.com.senai.p2m02.devinsales.dto.ItemVendaDTO;
 import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,4 +70,11 @@ public class ItemVendaEntityService {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Transactional
+    public List<ItemVendaEntity> listarItens (VendaEntity vendaEntity){
+        List <ItemVendaEntity> listItens = itemVendaEntityRepository.findByVenda(vendaEntity);
+        return listItens;
+    }
+
 }

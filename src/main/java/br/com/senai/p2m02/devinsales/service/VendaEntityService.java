@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.service;
 
+import br.com.senai.p2m02.devinsales.dto.VendaDTO;
 import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ public class VendaEntityService {
     @Autowired
     private DeliveryRepository deliveryRepository;
 
+    @Autowired
+    private ItemVendaEntityService itemVendaEntityService;
+
     @Transactional
     public List<VendaEntity> listarVendas(Long idVendedor) {
         userEntityRepository.findById(idVendedor).orElseThrow(() -> new EntityNotFoundException("Não existe vendedor com ID " + idVendedor));
@@ -42,9 +46,30 @@ public class VendaEntityService {
     }
 
     @Transactional
-    public VendaEntity listarPorId(Long id) {
-        return vendaEntityRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Não existe venda " + id));
+    public VendaDTO listarPorId(Long id) {
+        VendaEntity venda = getVenda(id);
+        VendaDTO vendaDTO = converterVendaDTO(venda);
+        return vendaDTO;
+
+    }
+    private VendaDTO converterVendaDTO(VendaEntity vendaEntity){
+        VendaDTO vendaDTO = new VendaDTO();
+        vendaDTO.setId(vendaEntity.getId());
+        vendaDTO.setNomeComprador(vendaEntity.getComprador().getNome());
+        vendaDTO.setNomeVendedor(vendaEntity.getVendedor().getNome());
+        vendaDTO.setDataVenda(vendaEntity.getDataVenda());
+        List<ItemVendaEntity> lista = itemVendaEntityService.listarItens(vendaEntity);
+        vendaDTO.setListaItens(lista);
+
+        return vendaDTO;
+    }
+
+    public VendaEntity getVenda(Long idVenda){
+    Optional<VendaEntity> user = Optional.ofNullable(vendaEntityRepository.findById(idVenda).orElseThrow(
+            () -> new EntityNotFoundException("Não existe venda " + idVenda)));
+
+    VendaEntity vendaEntity = user.get();
+    return vendaEntity;
     }
 
     @Transactional
