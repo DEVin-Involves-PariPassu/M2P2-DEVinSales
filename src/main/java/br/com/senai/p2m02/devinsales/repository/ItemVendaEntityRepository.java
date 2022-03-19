@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ItemVendaEntityRepository extends CrudRepository<ItemVendaEntity, Long> {
 
-    Optional<ItemVendaEntity> findByProduto(ProductEntity produto);
+    List<ItemVendaEntity> findByProduto(ProductEntity produto);
     List<ItemVendaEntity> findByVenda (VendaEntity venda);
 
 }
