@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -84,8 +85,8 @@ public class ProductService {
 
 
     public void existsItemVenda(ProductEntity product){
-        Optional<ItemVendaEntity> item_venda = itemVendaRepository.findByProduto(product);
-        if (item_venda.isPresent())
+        List<ItemVendaEntity> item_venda = itemVendaRepository.findByProduto(product);
+        if (!item_venda.isEmpty())
             throw new EntityExistsException("Há itens de venda com o id requisitado");
 
     }
