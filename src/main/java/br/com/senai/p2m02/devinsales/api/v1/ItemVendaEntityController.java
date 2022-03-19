@@ -9,7 +9,6 @@ import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import br.com.senai.p2m02.devinsales.service.ItemVendaEntityService;
-import br.com.senai.p2m02.devinsales.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,13 +50,13 @@ public class ItemVendaEntityController {
         VendaEntity vendaEntity = vendaEntityRepository.findById(Long.valueOf(idVenda)).orElseThrow(
                 () -> new EntityNotFoundException(HttpStatus.NOT_FOUND.name())
         );
-        if(itemVenda.getItemId()==null){
+        if(itemVenda.getId()==null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        ProductEntity productEntity = productRepository.findById(itemVenda.getItemId()).orElseThrow(
+        ProductEntity productEntity = productRepository.findById(itemVenda.getId()).orElseThrow(
                 () -> new EntityNotFoundException(HttpStatus.NOT_FOUND.name())
         );
-        Integer idProduto = Math.toIntExact(itemVenda.getItemId());
+        Integer idProduto = Math.toIntExact(itemVenda.getId());
         BigDecimal precoUnitario = itemVenda.getPrecoUnitario()!=null ? BigDecimal.valueOf(itemVenda.getPrecoUnitario()):productEntity.getPreco_sugerido();
         Integer quantidade = itemVenda.getQuantidade()!=null? itemVenda.getQuantidade() : 1;
         ItemVendaEntity item = itemVendaEntityRepository.findById(Long.valueOf(idProduto)).orElseThrow(
@@ -75,12 +74,6 @@ public class ItemVendaEntityController {
         itemVendaEntity.setPrecoUnitario(precoUnitario);
         itemVendaEntityRepository.save(itemVendaEntity);
         return new ResponseEntity<>(itemVendaEntity.getId(), HttpStatus.CREATED);
-
-
-
-
-
-
     }
 
     @PatchMapping("/{id_item}/quantity/{quantity}")

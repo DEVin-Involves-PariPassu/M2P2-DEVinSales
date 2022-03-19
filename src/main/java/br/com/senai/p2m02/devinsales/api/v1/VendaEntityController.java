@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.dto.VendaDTO;
 import br.com.senai.p2m02.devinsales.model.DeliveryEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
@@ -22,7 +23,7 @@ public class VendaEntityController {
     private VendaEntityService service;
 
     @GetMapping("/{id_venda}")
-    public ResponseEntity<VendaEntity> getById(
+    public ResponseEntity<VendaDTO> getById(
             @PathVariable(name = "id_venda") Long idVenda,
             @RequestAttribute("loggedUser") UserEntity loggedUser
     ) {
@@ -30,10 +31,12 @@ public class VendaEntityController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        VendaEntity vendaEntity = service.listarPorId(idVenda);
+        VendaDTO vendaDTO = service.listarPorId(idVenda);
 
-        return ResponseEntity.ok(vendaEntity);
+        return ResponseEntity.ok(vendaDTO);
     }
+
+
 
     @GetMapping("user/{id_user}/sales")
     public ResponseEntity<List<VendaEntity>> get(
