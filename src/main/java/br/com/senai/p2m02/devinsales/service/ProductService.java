@@ -32,11 +32,8 @@ public class ProductService {
     }
 
     public ProductEntity findById(Long productId) {
-        for (ProductEntity product : productRepository.findAll()) {
-            if (product.getId() == productId)
-                return product;
-        }
-        return null;
+        return this.productRepository.findById(productId).orElseThrow(() ->
+                new EntityNotFoundException("Não há nenhum produto com este Id"));
     }
 
     private ProductEntity validationsPost(ProductDTO productDTO){
@@ -85,12 +82,6 @@ public class ProductService {
         }
     }
 
-    public void existsById(Long id_produto){
-        ProductEntity product = findById(id_produto);
-        if (product == null) {
-            throw new EntityNotFoundException("Não há nenhum produto com este id");
-        }
-    }
 
     public void existsItemVenda(ProductEntity product){
         Optional<ItemVendaEntity> item_venda = itemVendaRepository.findByProduto(product);
@@ -102,14 +93,8 @@ public class ProductService {
     @Transactional
     public void delete(Long id_produto){
         ProductEntity product = findById(id_produto);
-        if (product == null) {
-            existsById(id_produto);
-        }
-
         existsItemVenda(product);
-
         productRepository.delete(product);
-
     }
 
     @Transactional
@@ -137,9 +122,7 @@ public class ProductService {
     public ProductEntity validationsPut(Long id_produto,
                                         ProductDTO productDTO){
         ProductEntity product = findById(id_produto);
-        if (product == null) {
-            existsById(id_produto);
-        }
+
         if (productDTO.getNome().isBlank()){
             existsNome(productDTO);
         }
@@ -159,9 +142,7 @@ public class ProductService {
     public ProductEntity validationsPatch(Long id_produto,
                                         ProductDTO productDTO){
         ProductEntity product = findById(id_produto);
-        if (product == null) {
-            existsById(id_produto);
-        }
+
         if(productDTO.getNome() != null) {
             if (!productDTO.getNome().isBlank()) {
                 isUniqueOrTheSame(productDTO, id_produto);
