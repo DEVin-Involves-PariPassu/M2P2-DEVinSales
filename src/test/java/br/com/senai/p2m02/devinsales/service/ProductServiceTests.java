@@ -22,60 +22,46 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 public class ProductServiceTests {
-//    @Mock
-//    private ProductRepository productRepository;
-//
-//    @Mock
-//    private ItemVendaEntityRepository itemVendaRepository;
-//
-//    @InjectMocks
-//    private ProductService service = new ProductService();
-//
-//    @BeforeEach
-//    public void setup(){
-//        MockitoAnnotations.openMocks(this);
-//    }
-//
-//    @Test
-//    @DisplayName("Deleta um produto")
-//    public void deveDeletarUmProdutoQuandoPassarUmIdValido(){
-//        //Cenário
-//        ProductEntity productEntity = new ProductEntity();
-//        productEntity.setId(1L);
-//        when(productRepository.findAll()).thenAnswer(new Answer<List<ProductEntity>>() {
-//            @Override
-//            public List<ProductEntity> answer(InvocationOnMock invocationOnMock) throws Throwable {
-//                List<ProductEntity> products = new ArrayList<>();
-//                products.add(productEntity);
-//                return products;
-//            }
-//        });
-//        when(itemVendaRepository.findByProduto(productEntity)).thenReturn(Optional.empty());
-//        // Execução
-//        service.delete(productEntity.getId());
-//        // Validação
-//        verify(this.itemVendaRepository, times(1)).findByProduto(productEntity);
-//        verify(this.productRepository, times(1)).delete(productEntity);
-//    }
-//
-//    @Test
-//    @DisplayName("Lançar exceção ao deletar caso id inválido")
-//    public void deveLancarEntityNotFoundExceptionQuandoPassarUmIdInvalido(){
-//        //Cenário
-//        ProductEntity productEntity = new ProductEntity();
-//        productEntity.setId(1L);
-//        when(productRepository.findAll()).thenAnswer(new Answer<List<ProductEntity>>() {
-//            @Override
-//            public List<ProductEntity> answer(InvocationOnMock invocationOnMock) throws Throwable {
-//                List<ProductEntity> products = new ArrayList<>();
-//                products.add(productEntity);
-//                return products;
-//            }
-//        });
-//        // Validação
-//        Assertions.assertThrows(EntityNotFoundException.class, () -> {
-//            service.delete(2L);
-//            verify(this.productRepository, times(1)).findAll();
-//        });
-//    }
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private ItemVendaEntityRepository itemVendaRepository;
+
+    @InjectMocks
+    private ProductService service = new ProductService();
+
+    @BeforeEach
+    public void setup(){
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    @DisplayName("Deleta um produto")
+    public void deveDeletarUmProdutoQuandoPassarUmIdValido(){
+        //Cenário
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(1L);
+        when(productRepository.findById(1l)).thenReturn(Optional.of(productEntity));
+        when(itemVendaRepository.findByProduto(productEntity)).thenReturn(List.of());
+        // Execução
+        service.delete(productEntity.getId());
+        // Validação
+        verify(this.itemVendaRepository, times(1)).findByProduto(productEntity);
+        verify(this.productRepository, times(1)).delete(productEntity);
+    }
+
+    @Test
+    @DisplayName("Lançar exceção ao deletar caso id inválido")
+    public void deveLancarEntityNotFoundExceptionQuandoPassarUmIdInvalido(){
+        //Cenário
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(1L);
+        when(productRepository.findById(2l)).thenReturn(Optional.empty());
+        // Validação
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            service.delete(2L);
+            verify(this.productRepository, times(1)).findAll();
+        });
+    }
 }
