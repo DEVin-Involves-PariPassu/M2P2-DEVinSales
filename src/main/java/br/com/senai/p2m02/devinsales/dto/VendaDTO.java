@@ -1,23 +1,33 @@
 package br.com.senai.p2m02.devinsales.dto;
 
+import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
+
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.math.BigDecimal;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 public class VendaDTO {
-    private Long id;
 
     @NotNull(message = "Id da venda é requerido")
-    private Long vendaId;
+    private Long id;
 
     @NotNull(message = "Nome do vendedor é requerido")
-    private Long vendedor;
+    private String nomeVendedor;
 
     @NotNull(message = "Nome do comprador é requerido")
-    private Long comprador;
+    private String nomeComprador;
 
     @NotNull(message = "Data da venda é requerida")
-    private String dataVenda;
+    private LocalDateTime dataVenda;
+
+    @NotNull(message = "Total da venda é requerida")
+    private BigDecimal totalVenda;
+
+    @NotNull(message = "Item é requerido")
+    private List<ItemVendaDTO> listaItens;
 
     public Long getId() {
         return id;
@@ -27,35 +37,43 @@ public class VendaDTO {
         this.id = id;
     }
 
-    public Long getVendaId() {
-        return vendaId;
-    }
-
-    public void setVendaId(Long vendaId) {
-        this.vendaId = vendaId;
-    }
-
-    public Long getVendedor() {
-        return vendedor;
-    }
-
-    public void setVendedor(Long vendedor) {
-        this.vendedor = vendedor;
-    }
-
-    public Long getComprador() {
-        return comprador;
-    }
-
-    public void setComprador(Long comprador) {
-        this.comprador = comprador;
-    }
-
-    public String getDataVenda() {
+    public LocalDateTime getDataVenda() {
         return dataVenda;
     }
 
-    public void setDataVenda(String dataVenda) {
+    public void setDataVenda(LocalDateTime dataVenda) {
         this.dataVenda = dataVenda;
+    }
+
+    public String getNomeVendedor() {
+        return nomeVendedor;
+    }
+
+    public void setNomeVendedor(String nomeVendedor) {
+        this.nomeVendedor = nomeVendedor;
+    }
+
+    public String getNomeComprador() {
+        return nomeComprador;
+    }
+
+    public void setNomeComprador(String nomeComprador) {
+        this.nomeComprador = nomeComprador;
+    }
+
+    public BigDecimal getTotalVenda() {
+        return totalVenda;
+    }
+
+    public void setTotalVenda(BigDecimal totalVenda) {
+        this.totalVenda = totalVenda;
+    }
+
+    public List<ItemVendaDTO> getListaItens() {
+        return listaItens;
+    }
+
+    public void setListaItens(List<ItemVendaDTO> listaItens) {
+        this.listaItens = listaItens;
     }
 }

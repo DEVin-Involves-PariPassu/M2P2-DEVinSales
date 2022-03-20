@@ -8,6 +8,7 @@ import br.com.senai.p2m02.devinsales.repository.DeliveryRepository;
 import br.com.senai.p2m02.devinsales.repository.EnderecoEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import java.time.LocalDate;
 
 @Service
 public class DeliveryEntityService {
@@ -87,6 +90,4 @@ public class DeliveryEntityService {
 
         return deliveryDTO;
     }
-
-}
 

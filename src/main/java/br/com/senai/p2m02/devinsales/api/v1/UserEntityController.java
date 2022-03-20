@@ -1,7 +1,6 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
-import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +70,17 @@ public class UserEntityController {
         service.atualizar(idUser, userDTO);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/{id_user}")
+    public ResponseEntity<List<UserEntity>> delete(@RequestAttribute("loggedUser") UserEntity user,
+                                                   @PathVariable (name = "id_user") Long userId)  {
+
+        if( !user.canWrite("usuario") ) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        service.delete(userId);
+
+        return ResponseEntity.noContent().build();
     }
 }

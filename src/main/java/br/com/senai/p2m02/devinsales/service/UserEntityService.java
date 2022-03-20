@@ -1,20 +1,17 @@
 package br.com.senai.p2m02.devinsales.service;
 
 import br.com.senai.p2m02.devinsales.dto.FeatureDTO;
-import br.com.senai.p2m02.devinsales.model.FeatureEntity;
-import br.com.senai.p2m02.devinsales.model.UserEntity;
-import br.com.senai.p2m02.devinsales.model.UserFeatureEntity;
-import br.com.senai.p2m02.devinsales.model.UserFeatureId;
+import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.*;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
 import jakarta.persistence.EntityExistsException;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -170,7 +167,6 @@ public class UserEntityService {
     }
 
     private LocalDate verificationDate(UserDTO userDTO) throws DateTimeParseException {
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dtNascimento = LocalDate.parse(userDTO.getDtNascimento(), dateTimeFormatter);
 
@@ -210,25 +206,34 @@ public class UserEntityService {
 
     private Set<UserFeatureEntity> validateFeatures(UserEntity userEntity, UserDTO user) {
         Set<UserFeatureEntity> userFeatureEntities = new HashSet<>();
+        boolean existeUmaFeature = false;
         for (FeatureDTO feature : user.getFeatures()) {
             FeatureEntity featureEntity = existsFeature(feature);
             UserFeatureEntity userFeatureEntity = new UserFeatureEntity();
             userFeatureEntity.setId(new UserFeatureId(userEntity.getId(), featureEntity.getId()));
             userFeatureEntity.setUser(userEntity);
             userFeatureEntity.setFeature(featureEntity);
-            if (feature.getRead() == null) {
+            if (feature.getRead() == null || feature.getRead().equals(false)) {
                 userFeatureEntity.setRead(false);
             } else {
-                userFeatureEntity.setRead(feature.getRead());
+                userFeatureEntity.setRead(true);
+                existeUmaFeature = true;
             }
-            if (feature.getWrite() == null) {
+            if (feature.getWrite() == null || feature.getWrite().equals(false)) {
                 userFeatureEntity.setWrite(false);
             } else {
-                userFeatureEntity.setWrite(feature.getWrite());
+                userFeatureEntity.setWrite(true);
+                existeUmaFeature = true;
             }
-            userFeatureEntity = userFeatureEntityRepository.save(userFeatureEntity);
-            userFeatureEntities.add(userFeatureEntity);
+            if(existeUmaFeature) {
+                userFeatureEntity = userFeatureEntityRepository.save(userFeatureEntity);
+                userFeatureEntities.add(userFeatureEntity);
+            }
 
+        }
+        if (!existeUmaFeature) {
+            userEntityRepository.delete(userEntity);
+            throw new IllegalArgumentException("O usuário deve possuir ao menos uma permissão.");
         }
         return userFeatureEntities;
     }
@@ -240,5 +245,18 @@ public class UserEntityService {
         return featureEntity;
     }
 
+    @Transactional
+    public void delete(Long id){
+       UserEntity userEntity = userEntityRepository.findById(id).orElseThrow(
+               () -> new EntityNotFoundException("User with id " + id + " was not found."));
 
+       userEntityRepository.delete(userEntity);
+    }
+
+    @Transactional
+    public UserEntity findById(Long id){
+        return userEntityRepository.findUserEntityById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + id + " was not found." )
+        );
+    }
 }

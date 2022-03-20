@@ -1,16 +1,21 @@
 package br.com.senai.p2m02.devinsales.service;
 
+
+import br.com.senai.p2m02.devinsales.dto.ItemVendaDTO;
 import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,4 +71,29 @@ public class ItemVendaEntityService {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Transactional
+    public List<ItemVendaDTO> listarItens (VendaEntity vendaEntity){
+        List <ItemVendaEntity> listItens = itemVendaEntityRepository.findByVenda(vendaEntity);
+        List<ItemVendaDTO> listItensDTO = convertoItemDTO(listItens);
+        return listItensDTO;
+    }
+
+    private List<ItemVendaDTO> convertoItemDTO(List<ItemVendaEntity> itemVendaEntityList){
+        List<ItemVendaDTO> listItensDTO = new ArrayList<>();
+        for (ItemVendaEntity item : itemVendaEntityList
+             ) {
+            ItemVendaDTO itemDTO = new ItemVendaDTO();
+            itemDTO.setId(item.getId());
+            itemDTO.setNomeProduto(item.getProduto().getNome());
+            itemDTO.setPrecoUnitario(item.getPrecoUnitario().intValue());
+            itemDTO.setQuantidade(item.getQuantidade());
+            Integer totalItensInt = itemDTO.getQuantidade() * itemDTO.getPrecoUnitario();
+            BigDecimal totalItens = BigDecimal.valueOf(totalItensInt);
+            itemDTO.setTotalItensVenda(totalItens);
+            listItensDTO.add(itemDTO);
+        }
+        return listItensDTO;
+    }
+
 }
