@@ -13,10 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +29,6 @@ public class VendaEntityService {
 
     @Autowired
     private UserEntityRepository userEntityRepository;
-
-    @Autowired
-    private EnderecoEntityRepository enderecoEntityRepository;
-
-    @Autowired
-    private DeliveryRepository deliveryRepository;
 
     @Autowired
     private ItemVendaEntityService itemVendaEntityService;
@@ -186,32 +180,5 @@ public class VendaEntityService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return null;
-    }
-
-    private Long validateEndereco(DeliveryEntity delivery) {
-        EnderecoEntity endereco = delivery.getEndereco();
-        if (endereco != null) {
-            return delivery.getEndereco().getId();
-        }
-        throw new IllegalArgumentException("Endereço não fornecido.");
-    }
-
-    public Long postEntrega(DeliveryEntity delivery, Long idVenda) {
-
-        VendaEntity venda = vendaEntityRepository.findById(idVenda).orElseThrow(() ->
-                new EntityNotFoundException("Venda não encontrada: " + idVenda));
-
-        Long idEndereco = validateEndereco(delivery);
-
-        enderecoEntityRepository.findById(idEndereco).orElseThrow(() ->
-                new EntityNotFoundException("Endereço não encontrado: " + idEndereco));
-
-        if (delivery.getPrevisaoEntrega() == null) {
-            delivery.setPrevisaoEntrega(LocalDate.now().plusDays(7));
-        }
-
-        delivery.setVenda(venda);
-        delivery = deliveryRepository.save(delivery);
-        return delivery.getId();
     }
 }

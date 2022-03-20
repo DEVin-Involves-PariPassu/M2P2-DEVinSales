@@ -4,6 +4,7 @@ import br.com.senai.p2m02.devinsales.dto.VendaDTO;
 import br.com.senai.p2m02.devinsales.model.DeliveryEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
+import br.com.senai.p2m02.devinsales.service.DeliveryEntityService;
 import br.com.senai.p2m02.devinsales.service.VendaEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,9 @@ public class VendaEntityController {
 
     @Autowired
     private VendaEntityService service;
+
+    @Autowired
+    private DeliveryEntityService deliveryService;
 
     @GetMapping("/{id_venda}")
     public ResponseEntity<VendaDTO> getById(
@@ -120,7 +124,7 @@ public class VendaEntityController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        Long idEntrega = service.postEntrega(delivery, idVenda);
+        Long idEntrega = deliveryService.postEntrega(delivery, idVenda);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id_address}")
@@ -128,5 +132,4 @@ public class VendaEntityController {
 
         return ResponseEntity.created(location).body(idEntrega);
     }
-
 }
