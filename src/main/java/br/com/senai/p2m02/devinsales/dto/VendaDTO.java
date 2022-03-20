@@ -27,7 +27,7 @@ public class VendaDTO {
     private BigDecimal totalVenda;
 
     @NotNull(message = "Item é requerido")
-    private List<ItemVendaEntity> listaItens;
+    private List<ItemVendaDTO> listaItens;
 
     public Long getId() {
         return id;
@@ -69,11 +69,11 @@ public class VendaDTO {
         this.totalVenda = totalVenda;
     }
 
-    public List<ItemVendaEntity> getListaItens() {
+    public List<ItemVendaDTO> getListaItens() {
         return listaItens;
     }
 
-    public void setListaItens(List<ItemVendaEntity> listaItens) {
+    public void setListaItens(List<ItemVendaDTO> listaItens) {
         this.listaItens = listaItens;
     }
 }

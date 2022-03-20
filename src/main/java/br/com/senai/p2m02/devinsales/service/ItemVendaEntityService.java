@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,9 +73,27 @@ public class ItemVendaEntityService {
     }
 
     @Transactional
-    public List<ItemVendaEntity> listarItens (VendaEntity vendaEntity){
+    public List<ItemVendaDTO> listarItens (VendaEntity vendaEntity){
         List <ItemVendaEntity> listItens = itemVendaEntityRepository.findByVenda(vendaEntity);
-        return listItens;
+        List<ItemVendaDTO> listItensDTO = convertoItemDTO(listItens);
+        return listItensDTO;
+    }
+
+    private List<ItemVendaDTO> convertoItemDTO(List<ItemVendaEntity> itemVendaEntityList){
+        List<ItemVendaDTO> listItensDTO = new ArrayList<>();
+        for (ItemVendaEntity item : itemVendaEntityList
+             ) {
+            ItemVendaDTO itemDTO = new ItemVendaDTO();
+            itemDTO.setId(item.getId());
+            itemDTO.setNomeProduto(item.getProduto().getNome());
+            itemDTO.setPrecoUnitario(item.getPrecoUnitario().intValue());
+            itemDTO.setQuantidade(item.getQuantidade());
+            Integer totalItensInt = itemDTO.getQuantidade() * itemDTO.getPrecoUnitario();
+            BigDecimal totalItens = BigDecimal.valueOf(totalItensInt);
+            itemDTO.setTotalItensVenda(totalItens);
+            listItensDTO.add(itemDTO);
+        }
+        return listItensDTO;
     }
 
 }

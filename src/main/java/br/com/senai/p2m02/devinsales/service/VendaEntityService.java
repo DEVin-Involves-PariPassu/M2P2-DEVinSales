@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.service;
 
+import br.com.senai.p2m02.devinsales.dto.ItemVendaDTO;
 import br.com.senai.p2m02.devinsales.dto.VendaDTO;
 import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.*;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,24 +48,40 @@ public class VendaEntityService {
         return vendaDTO;
 
     }
-    private VendaDTO converterVendaDTO(VendaEntity vendaEntity){
+
+    private VendaDTO converterVendaDTO(VendaEntity vendaEntity) {
         VendaDTO vendaDTO = new VendaDTO();
         vendaDTO.setId(vendaEntity.getId());
         vendaDTO.setNomeComprador(vendaEntity.getComprador().getNome());
-        vendaDTO.setNomeVendedor(vendaEntity.getVendedor().getNome());
+        if (vendaEntity.getVendedor() != null) {
+            vendaDTO.setNomeVendedor(vendaEntity.getVendedor().getNome());
+        } else {
+            vendaDTO.setNomeVendedor(null);
+        }
         vendaDTO.setDataVenda(vendaEntity.getDataVenda());
-        List<ItemVendaEntity> lista = itemVendaEntityService.listarItens(vendaEntity);
+        List<ItemVendaDTO> lista = itemVendaEntityService.listarItens(vendaEntity);
+        vendaDTO.setTotalVenda(getTotalItens(lista));
         vendaDTO.setListaItens(lista);
 
         return vendaDTO;
     }
 
-    public VendaEntity getVenda(Long idVenda){
-    Optional<VendaEntity> user = Optional.ofNullable(vendaEntityRepository.findById(idVenda).orElseThrow(
-            () -> new EntityNotFoundException("Não existe venda " + idVenda)));
+    public VendaEntity getVenda(Long idVenda) {
+        Optional<VendaEntity> user = Optional.ofNullable(vendaEntityRepository.findById(idVenda).orElseThrow(
+                () -> new EntityNotFoundException("Não existe venda " + idVenda)));
 
-    VendaEntity vendaEntity = user.get();
-    return vendaEntity;
+        VendaEntity vendaEntity = user.get();
+        return vendaEntity;
+    }
+
+    private BigDecimal getTotalItens(List<ItemVendaDTO> listItemDTO) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (ItemVendaDTO item : listItemDTO
+        ) {
+            BigDecimal totalItens = item.getTotalItensVenda();
+            total = totalItens.add(total);
+        }
+        return total;
     }
 
     @Transactional
@@ -121,7 +141,7 @@ public class VendaEntityService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else if (vendaEntity.getVendedor() != null) {
             if (this.getUser(vendaEntity.getVendedor().getId()) == null) {
-               return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
         return null;
