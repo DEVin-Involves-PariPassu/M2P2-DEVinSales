@@ -26,10 +26,6 @@ public class ItemVendaDTO {
         this.id = id;
     }
 
-    public String getNomeProduto() {
-        return nomeProduto;
-    }
-
     public void setNomeProduto(String nomeProduto) {
         this.nomeProduto = nomeProduto;
     }
