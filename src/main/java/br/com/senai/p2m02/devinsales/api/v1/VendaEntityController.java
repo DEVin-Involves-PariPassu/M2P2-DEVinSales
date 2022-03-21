@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.dto.DeliveryDTO;
 import br.com.senai.p2m02.devinsales.dto.VendaDTO;
 import br.com.senai.p2m02.devinsales.model.DeliveryEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
@@ -103,16 +104,22 @@ public class VendaEntityController {
     }
 
     @GetMapping("/deliver")
-    public ResponseEntity<Long> get(
-            @PathVariable(value = "id_endereco") @RequestParam(required = false) int idEndereco,
-            @PathVariable(value = "id_venda") @RequestParam(required = false) int idVenda,
+    public ResponseEntity<List<DeliveryDTO>> getDeliveryList(
+            @RequestParam(value = "id_endereco", required = false) Long idEndereco,
+            @RequestParam(value = "id_venda", required = false) Long idVenda,
             @RequestAttribute("loggedUser") UserEntity loggedUser
     ) {
         if (!loggedUser.canRead("vendas")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return null;
+        List<DeliveryDTO> listDelivery = deliveryService.listar(idEndereco, idVenda);
+
+        if(listDelivery.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return ResponseEntity.ok(listDelivery);
     }
+
 
     @PostMapping("/{id_venda}/deliver")
     public ResponseEntity<Long> createDelivery(
