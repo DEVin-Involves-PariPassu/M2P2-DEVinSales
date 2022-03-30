@@ -29,5 +29,7 @@ public class AuthService {
         String username = split[0];
         String password = split[1];
 
+        System.out.println(username + ":" + password);
+
         return repository.findUserEntityByLoginAndSenha(username, password).orElse(null);    }
 }
