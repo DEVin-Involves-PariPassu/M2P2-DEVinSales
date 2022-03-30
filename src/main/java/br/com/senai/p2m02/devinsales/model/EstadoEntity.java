@@ -2,7 +2,8 @@ package br.com.senai.p2m02.devinsales.model;
 
 import jakarta.persistence.*;
 
-@Entity(name = "estado")
+@Entity
+@Table(name = "estado");
 public class EstadoEntity {
 
     @Id
