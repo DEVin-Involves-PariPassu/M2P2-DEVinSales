@@ -15,6 +15,7 @@ public class AuthService {
     private UserEntityRepository repository;
 
     public UserEntity tryToAuthenticate(String authentication) {
+        System.out.println("Authentication: " + authentication);
         if (authentication == null)
             return null;
         if (!authentication.startsWith("Basic"))
