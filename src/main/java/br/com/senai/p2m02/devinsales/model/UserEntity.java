@@ -2,7 +2,6 @@ package br.com.senai.p2m02.devinsales.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
