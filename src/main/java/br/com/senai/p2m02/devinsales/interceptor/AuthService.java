@@ -15,7 +15,6 @@ public class AuthService {
     private UserEntityRepository repository;
 
     public UserEntity tryToAuthenticate(String authentication) {
-        System.out.println("Authentication: " + authentication);
         if (authentication == null)
             return null;
         if (!authentication.startsWith("Basic"))
@@ -29,7 +28,6 @@ public class AuthService {
         String username = split[0];
         String password = split[1];
 
-        System.out.println(username + ":" + password);
-
-        return repository.findUserEntityByLoginAndSenha(username, password).orElse(null);    }
+        return repository.findByLoginAndSenha(username, password).orElse(null);
+    }
 }

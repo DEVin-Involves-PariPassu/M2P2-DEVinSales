@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface UserEntityRepository extends CrudRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
 
-    Optional<UserEntity> findUserEntityByLoginAndSenha(String login, String senha);
+    Optional<UserEntity> findByLoginAndSenha(String login, String senha);
 
     Optional<UserEntity> findUserEntityByLogin(String login);
 
