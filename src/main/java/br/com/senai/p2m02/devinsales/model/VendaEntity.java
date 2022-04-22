@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name = "venda")
 public class VendaEntity {
@@ -26,13 +27,13 @@ public class VendaEntity {
     private UserEntity vendedor;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "venda", fetch = FetchType.EAGER)
-    private List<ItemVendaEntity> itens;
+    private Set<ItemVendaEntity> itens;
 
-    public List<ItemVendaEntity> getItens() {
+    public Set<ItemVendaEntity> getItens() {
         return itens;
     }
 
-    public void setItens(List<ItemVendaEntity> itens) {
+    public void setItens(Set<ItemVendaEntity> itens) {
         this.itens = itens;
     }
 

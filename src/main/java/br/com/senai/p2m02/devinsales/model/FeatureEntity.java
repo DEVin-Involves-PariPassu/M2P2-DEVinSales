@@ -1,9 +1,8 @@
 package br.com.senai.p2m02.devinsales.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
@@ -11,11 +10,11 @@ import java.util.Set;
 public class FeatureEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "feature_ger")
+    @SequenceGenerator(name = "feature_ger", sequenceName = "feature_seq", allocationSize = 1)
     private Long id;
 
-    @OneToMany(mappedBy = "feature")
-    private Set<UserFeatureEntity> userFeatureEntities;
-
+    @Column(name = "nome_feature")
     private String nomeFeature;
 
     public Long getId() {
@@ -24,14 +23,6 @@ public class FeatureEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-    @JsonIgnore
-    public Set<UserFeatureEntity> getUserFeatureEntities() {
-        return userFeatureEntities;
-    }
-
-    public void setUserFeatureEntities(Set<UserFeatureEntity> userFeatureEntities) {
-        this.userFeatureEntities = userFeatureEntities;
     }
 
     public String getNomeFeature() {

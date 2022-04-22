@@ -1,9 +1,11 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.EstadoDTO;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.EstadoEntityService;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,12 @@ public class EstadoEntityController {
 
     @Autowired
     private EstadoEntityService service;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
 
     @GetMapping
     public ResponseEntity<List<EstadoEntity>> get(
@@ -51,14 +59,40 @@ public class EstadoEntityController {
         return ResponseEntity.ok(estado);
     }
 
+//    @PostMapping
+//    public ResponseEntity<Long> post(
+//            @Valid @RequestBody EstadoDTO estado,
+//            @RequestAttribute("loggedUser") UserEntity loggedUser
+//    ) throws RequiredFieldMissingException {
+//        if (!loggedUser.canWrite("estado")) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        Long idEstado = service.salvar(estado);
+//
+//        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+//                .path("/{id}")
+//                .buildAndExpand(idEstado).toUri();
+//
+//        return ResponseEntity.created(location).body(idEstado);
+//    }
+
     @PostMapping
     public ResponseEntity<Long> post(
-            @Valid @RequestBody EstadoDTO estado,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
-    ) throws RequiredFieldMissingException {
+            @RequestHeader("Authorization") String auth,
+            @Valid @RequestBody EstadoDTO estado
+    ) {
+        //pega usuario logado
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
+        //testa autorização
         if (!loggedUser.canWrite("estado")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
         Long idEstado = service.salvar(estado);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()

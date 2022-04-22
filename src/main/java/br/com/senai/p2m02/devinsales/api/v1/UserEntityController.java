@@ -36,11 +36,7 @@ public class UserEntityController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity user,
-                                     @Valid @RequestBody UserDTO userDTO) {
-        if (!user.canWrite("usuario")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+    public ResponseEntity<Long> post(@Valid @RequestBody UserDTO userDTO) {
         Long userId = service.salvar(userDTO);
 
         return new ResponseEntity<>(userId, HttpStatus.CREATED);
