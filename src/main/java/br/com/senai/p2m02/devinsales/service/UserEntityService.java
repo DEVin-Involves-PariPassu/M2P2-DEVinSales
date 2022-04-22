@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.service.exception.UserIsUnderAgeException;
@@ -122,15 +123,16 @@ public class UserEntityService {
         verificationAge(userAge);
         isFeaturesEmpty(user);
 
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
         UserEntity newUser = new UserEntity();
         newUser.setLogin(user.getLogin());
-        newUser.setSenha(user.getSenha());
+        newUser.setSenha(encoder.encode(user.getSenha()));
         newUser.setNome(user.getNome());
         newUser.setDtNascimento(userAge);
         newUser = userEntityRepository.save(newUser);
         Set<UserFeatureEntity> userFeatureEntities = validateFeatures(newUser, user);
         newUser.setUserFeatureEntities(userFeatureEntities);
-
         return newUser;
     }
 

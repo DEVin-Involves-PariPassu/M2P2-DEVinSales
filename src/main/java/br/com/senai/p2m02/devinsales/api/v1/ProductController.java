@@ -23,14 +23,20 @@ public class ProductController {
     @Autowired
     ProductService service;
 
+//    @PostMapping
+//    public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity loggedUser,
+//                                              @Valid @RequestBody ProductDTO productDTO) {
+//            if(!loggedUser.canWrite("produto")){
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//            }
+//            Long productId = service.insert(productDTO);
+//            return new ResponseEntity<>(productId, HttpStatus.CREATED);
+//    }
+
     @PostMapping
-    public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity loggedUser,
-                                              @Valid @RequestBody ProductDTO productDTO) {
-            if(!loggedUser.canWrite("produto")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-            Long productId = service.insert(productDTO);
-            return new ResponseEntity<>(productId, HttpStatus.CREATED);
+    public ResponseEntity<Long> post(@Valid @RequestBody ProductDTO productDTO) {
+        Long productId = service.insert(productDTO);
+        return new ResponseEntity<>(productId, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/{id_produto}")
