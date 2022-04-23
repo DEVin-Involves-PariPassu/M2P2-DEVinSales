@@ -1,9 +1,11 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.CidadeEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +24,19 @@ public class CidadeEntityController {
     @Autowired
     private CidadeEntityService service;
 
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
+
     @GetMapping
     public ResponseEntity<List<CidadeEntity>> get(
             @PathVariable(name = "id_state") Long idEstado,
             @RequestParam(required = false) String nome,
-            @RequestAttribute("loggedUser") UserEntity loggedUser) {
-        if (!loggedUser.canRead("cidade")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+            @RequestHeader("Authorization") String auth) {
+        if (capturaTokenUsuarioEValidaLeitura(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
         List<CidadeEntity> cidadeEntities = service.listar(nome, idEstado);
         if(cidadeEntities.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -42,10 +49,8 @@ public class CidadeEntityController {
     public ResponseEntity<CidadeEntity> getById(
             @PathVariable(name = "id_state") Long idEstado,
             @PathVariable(name = "id_city") Long idCidade,
-            @RequestAttribute("loggedUser") UserEntity loggedUser) {
-        if (!loggedUser.canRead("cidade")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+            @RequestHeader("Authorization") String auth) {
+        if (capturaTokenUsuarioEValidaLeitura(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         CidadeEntity cidadeEntity = service.listarPorId(idCidade,idEstado);
 
         return ResponseEntity.ok(cidadeEntity);
@@ -55,11 +60,10 @@ public class CidadeEntityController {
     public ResponseEntity<Long> post(
             @Valid @RequestBody CidadeDTO cidade,
             @PathVariable(name = "id_state") Long idEstado,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
-        if (!loggedUser.canWrite("cidade")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
         Long idCidade = service.salvar(cidade, idEstado);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -70,16 +74,41 @@ public class CidadeEntityController {
 
     }
 
-        @DeleteMapping("/{id_city}")
+    @DeleteMapping("/{id_city}")
         public ResponseEntity<Void> delete (
                 @PathVariable(name = "id_state") Long idEstado,
                 @PathVariable(name = "id_city") Long idCidade,
-                @RequestAttribute("loggedUser") UserEntity loggedUser){
-            if (!loggedUser.canWrite("cidade")) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-            service.deletar(idCidade, idEstado);
+                @RequestHeader("Authorization") String auth){
+
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        service.deletar(idCidade, idEstado);
 
             return ResponseEntity.noContent().build();
         }
+
+    private boolean capturaTokenUsuarioEValidaEscrita(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if (!loggedUser.canWrite("cidade")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean capturaTokenUsuarioEValidaLeitura(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if (!loggedUser.canRead("cidade")) {
+            return true;
+        }
+        return false;
+    }
 }

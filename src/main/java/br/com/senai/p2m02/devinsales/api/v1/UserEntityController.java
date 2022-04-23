@@ -1,7 +1,9 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +20,25 @@ public class UserEntityController {
    @Autowired
     private UserEntityService service;
 
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
+
     @GetMapping
     public ResponseEntity<List<UserEntity>> get(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String dtNascimentoMin,
             @RequestParam(required = false) String dtNascimentoMax,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
         if (!loggedUser.canRead("usuario")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -47,36 +61,43 @@ public class UserEntityController {
                         @PathVariable (name="id_user") Long idUser,
                         @PathVariable (name="nome_feature") String nomeFeature,
                         @PathVariable (name="tipo_permissao") String tipoPermissao,
-                        @RequestAttribute("loggedUser") UserEntity loggedUser) {
-        if (!loggedUser.canWrite("usuario")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+                        @RequestHeader("Authorization") String auth) {
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         service.patchPermissao(idUser, nomeFeature, tipoPermissao);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
   
     @PutMapping ("/{id_user}")
-    public ResponseEntity<Void> put(@RequestAttribute("loggedUser") UserEntity user,
+    public ResponseEntity<Void> put(@RequestHeader("Authorization") String auth,
                                     @PathVariable (name = "id_user") Long idUser,
                                     @Valid @RequestBody UserDTO userDTO) {
-        if (!user.canWrite("usuario")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         service.atualizar(idUser, userDTO);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id_user}")
-    public ResponseEntity<List<UserEntity>> delete(@RequestAttribute("loggedUser") UserEntity user,
+    public ResponseEntity<List<UserEntity>> delete(@RequestHeader("Authorization") String auth,
                                                    @PathVariable (name = "id_user") Long userId)  {
 
-        if( !user.canWrite("usuario") ) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         service.delete(userId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean capturaTokenUsuarioEValidaEscrita(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if( !loggedUser.canWrite("usuario") ) {
+            return true;
+        }
+        return false;
     }
 }
