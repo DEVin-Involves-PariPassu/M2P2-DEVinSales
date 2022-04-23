@@ -34,11 +34,9 @@ public class EstadoEntityController {
     @GetMapping
     public ResponseEntity<List<EstadoEntity>> get(
             @RequestParam(required = false) String nome,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
-        if (!loggedUser.canRead("estado")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaLeitura(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         List<EstadoEntity> estadoEntities = service.listar(nome);
         if (estadoEntities.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -49,15 +47,15 @@ public class EstadoEntityController {
     @GetMapping("/{id}")
     public ResponseEntity<EstadoEntity> getById(
             @PathVariable Long id,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
-        if(!loggedUser.canRead("estado")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaLeitura(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         EstadoEntity estado = service.listarPorId(id);
 
         return ResponseEntity.ok(estado);
     }
+
+
 
 //    @PostMapping
 //    public ResponseEntity<Long> post(
@@ -82,16 +80,7 @@ public class EstadoEntityController {
             @Valid @RequestBody EstadoDTO estado
     ) {
         //pega usuario logado
-        String token = auth.substring(7);
-        Long idUsuario = tokenService.getIdUsuario(token);
-        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
-                () -> new IllegalArgumentException()
-        );
-
-        //testa autorização
-        if (!loggedUser.canWrite("estado")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
         Long idEstado = service.salvar(estado);
 
@@ -105,13 +94,37 @@ public class EstadoEntityController {
     @DeleteMapping("/{id}")
     public ResponseEntity <Void> delete(
             @PathVariable Long id,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
-        if (!loggedUser.canWrite("estado")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaTokenUsuarioEValidaEscrita(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         service.deletar(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean capturaTokenUsuarioEValidaLeitura(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if(!loggedUser.canRead("estado")){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean capturaTokenUsuarioEValidaEscrita(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if (!loggedUser.canWrite("estado")) {
+            return true;
+        }
+        return false;
     }
 }
