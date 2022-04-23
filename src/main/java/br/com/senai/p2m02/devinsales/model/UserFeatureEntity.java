@@ -2,10 +2,12 @@ package br.com.senai.p2m02.devinsales.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.io.Serializable;
 
 @Entity(name = "usuario_feature")
-public class UserFeatureEntity implements Serializable {
+public class UserFeatureEntity implements Serializable, GrantedAuthority {
 
     @EmbeddedId
     private UserFeatureId id;
@@ -72,5 +74,10 @@ public class UserFeatureEntity implements Serializable {
                 ", read=" + read +
                 ", write=" + write +
                 '}';
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.getFeature().getNomeFeature();
     }
 }

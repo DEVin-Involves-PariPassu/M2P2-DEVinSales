@@ -9,11 +9,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class SpringSecurityConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private SecurityInterceptor securityInterceptor;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(securityInterceptor);
-    }
+//    @Autowired
+//    private SecurityInterceptor securityInterceptor;
+//
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(securityInterceptor);
+//    }
 }

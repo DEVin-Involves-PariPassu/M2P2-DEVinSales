@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.ItemVendaDTO;
 import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.ProductEntity;
@@ -7,6 +8,7 @@ import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import br.com.senai.p2m02.devinsales.service.ItemVendaEntityService;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,13 +38,25 @@ public class ItemVendaEntityController {
 
     private ProductEntity productEntity;
 
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
+
     @PostMapping
     public ResponseEntity<Long> post(
 
             @PathVariable(name = "id_venda") Integer idVenda,
             @Valid @RequestBody ItemVendaDTO itemVenda,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
         if (!loggedUser.canWrite("venda")) {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
         }
@@ -80,7 +94,13 @@ public class ItemVendaEntityController {
     public ResponseEntity<Void> patchQuantidade(@PathVariable(name = "id_venda") Long idVenda,
                                                 @PathVariable(name = "id_item") Long idItem,
                                                 @PathVariable Integer quantity,
-                                                @RequestAttribute("loggedUser") UserEntity loggedUser) {
+                                                @RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
         if (!loggedUser.canWrite("venda")) {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
         }
@@ -94,9 +114,14 @@ public class ItemVendaEntityController {
             @PathVariable("id_venda") Long idVenda,
             @PathVariable("id_item") Long idItem,
             @PathVariable("price") BigDecimal price,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
-
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
         if (!loggedUser.canWrite("venda")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
