@@ -1,9 +1,11 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.ProductDTO;
 import br.com.senai.p2m02.devinsales.model.ProductEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,23 +25,27 @@ public class ProductController {
     @Autowired
     ProductService service;
 
+    @Autowired
+    TokenService tokenService;
+
+    @Autowired
+    UserEntityRepository userEntityRepository;
+
     @PostMapping
-    public ResponseEntity<Long> post(@RequestAttribute("loggedUser") UserEntity loggedUser,
+    public ResponseEntity<Long> post(@RequestHeader("Authorization") String auth,
                                               @Valid @RequestBody ProductDTO productDTO) {
-            if(!loggedUser.canWrite("produto")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-            Long productId = service.insert(productDTO);
+
+        if (capturaUsuarioLogadoPeloToken(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+           Long productId = service.insert(productDTO);
             return new ResponseEntity<>(productId, HttpStatus.CREATED);
     }
 
+
     @DeleteMapping(value = "/{id_produto}")
     public ResponseEntity delete(@NotNull @PathVariable Long id_produto,
-                                 @RequestAttribute("loggedUser") UserEntity loggedUser
+                                 @RequestHeader("Authorization") String auth
     ){
-        if(!loggedUser.canWrite("produto")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        if (capturaUsuarioLogadoPeloToken(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
         service.delete(id_produto);
 
@@ -48,11 +54,11 @@ public class ProductController {
 
     @PutMapping(value = "/{id_produto}")
     public ResponseEntity<Long> put(@NotNull @PathVariable Long id_produto,
-                                    @RequestAttribute("loggedUser") UserEntity loggedUser,
+                                    @RequestHeader("Authorization") String auth,
                                     @RequestBody ProductDTO productDTO) {
-        if(!loggedUser.canWrite("produto")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+
+        if (capturaUsuarioLogadoPeloToken(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
         if(id_produto == null){
             return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -64,11 +70,10 @@ public class ProductController {
 
     @PatchMapping("/{id_produto}")
     public ResponseEntity patch(@PathVariable Long id_produto,
-                                @RequestAttribute("loggedUser") UserEntity loggedUser,
+                                @RequestHeader("Authorization") String auth,
                                 @RequestBody ProductDTO productDTO) {
-        if(!loggedUser.canWrite("produto")){
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+
+        if (capturaUsuarioLogadoPeloToken(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
         if(id_produto == null){
             return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -76,5 +81,18 @@ public class ProductController {
 
         service.updateDoPatch(id_produto, productDTO);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    private boolean capturaUsuarioLogadoPeloToken(@RequestHeader("Authorization") String auth) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario)
+                .orElseThrow(
+                        ()-> new IllegalArgumentException()
+                );
+        if(!loggedUser.canWrite("produto")){
+            return true;
+        }
+        return false;
     }
 }

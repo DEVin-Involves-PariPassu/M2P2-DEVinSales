@@ -14,7 +14,7 @@ public class UserDTO {
     @NotBlank(message = "Informe o nome")
     private String nome;
 
-    @NotBlank(message = "Informe a data de nascimento")
+    @NotBlank(message = "Informe a data de nascimento no formato dd/MM/yyyy")
     private String dtNascimento;
 
     @NotBlank
