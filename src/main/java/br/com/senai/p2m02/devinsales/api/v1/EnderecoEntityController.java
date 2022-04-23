@@ -1,8 +1,10 @@
 package br.com.senai.p2m02.devinsales.api.v1;
 
+import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.EnderecoEntityService;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,12 @@ public class EnderecoEntityController {
     @Autowired
     private EnderecoEntityService service;
 
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
+
     @GetMapping
     public ResponseEntity<List<EnderecoEntity>> get(
             @PathVariable(name = "id_state") Long idEstado,
@@ -29,8 +37,14 @@ public class EnderecoEntityController {
             @RequestParam(required = false) String rua,
             @RequestParam(required = false) Integer numero,
             @RequestParam(required = false) String complemento,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if (!loggedUser.canRead("endereco")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -46,8 +60,14 @@ public class EnderecoEntityController {
             @PathVariable(name = "id_state") Long idEstado,
             @PathVariable(name = "id_city") Long idCidade,
             @PathVariable (name = "id_address") Long idEndereco,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if(!loggedUser.canRead("endereco")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -61,8 +81,14 @@ public class EnderecoEntityController {
             @Valid @RequestBody EnderecoDTO endereco,
             @PathVariable(name = "id_state") Long idEstado,
             @PathVariable(name = "id_city") Long idCidade,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     )  {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if (!loggedUser.canWrite("endereco")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -80,8 +106,14 @@ public class EnderecoEntityController {
             @PathVariable(name = "id_state") Long idEstado,
             @PathVariable(name = "id_city") Long idCidade,
             @PathVariable (name = "id_address") Long idEndereco,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if (!loggedUser.canWrite("endereco")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }

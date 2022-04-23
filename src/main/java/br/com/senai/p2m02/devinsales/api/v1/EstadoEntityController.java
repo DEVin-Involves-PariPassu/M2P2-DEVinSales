@@ -7,7 +7,6 @@ import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.EstadoEntityService;
-import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,14 @@ public class EstadoEntityController {
     @GetMapping
     public ResponseEntity<List<EstadoEntity>> get(
             @RequestParam(required = false) String nome,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ) {
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if (!loggedUser.canRead("estado")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -49,8 +54,14 @@ public class EstadoEntityController {
     @GetMapping("/{id}")
     public ResponseEntity<EstadoEntity> getById(
             @PathVariable Long id,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if(!loggedUser.canRead("estado")){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -78,8 +89,8 @@ public class EstadoEntityController {
 
     @PostMapping
     public ResponseEntity<Long> post(
-            @RequestHeader("Authorization") String auth,
-            @Valid @RequestBody EstadoDTO estado
+            @Valid @RequestBody EstadoDTO estado,
+            @RequestHeader("Authorization") String auth
     ) {
         //pega usuario logado
         String token = auth.substring(7);
@@ -105,8 +116,14 @@ public class EstadoEntityController {
     @DeleteMapping("/{id}")
     public ResponseEntity <Void> delete(
             @PathVariable Long id,
-            @RequestAttribute("loggedUser") UserEntity loggedUser
+            @RequestHeader("Authorization") String auth
     ){
+        String token = auth.substring(7);
+        Long idUsuario = tokenService.getIdUsuario(token);
+        UserEntity loggedUser = userEntityRepository.findById(idUsuario).orElseThrow(
+                () -> new IllegalArgumentException()
+        );
+
         if (!loggedUser.canWrite("estado")) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
