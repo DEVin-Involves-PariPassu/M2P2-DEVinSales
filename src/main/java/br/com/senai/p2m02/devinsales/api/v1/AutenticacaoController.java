@@ -17,23 +17,26 @@ import javax.validation.Valid;
 
 @RestController
 public class AutenticacaoController {
-    private final AuthenticationManager authManager;
+
+    private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    public AutenticacaoController(AuthenticationManager authManager, TokenService tokenService) {
-        this.authManager = authManager;
+    public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService) {
+        this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
     }
 
     @PostMapping("/auth")
-    public ResponseEntity<?> autenticar(@RequestBody @Valid LoginDTO loginDto) {
+    public ResponseEntity<?> autenticar(@RequestBody @Valid LoginDTO loginDto){
         UsernamePasswordAuthenticationToken login = loginDto.converter();
-        try {
-            Authentication authentication = authManager.authenticate(login);
+        try{
+            Authentication authentication = authenticationManager.authenticate(login);
             String token = tokenService.gerarToken(authentication);
             return ResponseEntity.ok(new TokenDTO(token, "Bearer"));
-        } catch (AuthenticationException e) {
+        }
+        catch (AuthenticationException e){
             return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
         }
     }
+
 }
