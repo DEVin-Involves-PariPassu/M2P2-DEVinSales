@@ -2,13 +2,16 @@ package br.com.senai.p2m02.devinsales.service;
 
 
 import br.com.senai.p2m02.devinsales.dto.EstadoDTO;
+import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.SiglaEstado;
 import br.com.senai.p2m02.devinsales.repository.CidadeEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.EstadoEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.SpecificationsEstadoEntity;
+import br.com.senai.p2m02.devinsales.service.exception.EntityIsReferencedException;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -194,3 +198,62 @@ public class EstadoServiceTests {
             Long idEstado = service.salvar(estadoDTO);
         });
     }
+
+    @Test
+    @DisplayName("Deleta estado com Id válido")
+    public void deveDeletarEstadoQuandoIdForValido(){
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Distrito Federal");
+        estadoEntity.setSigla(SiglaEstado.DF);
+
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+        when(cidadeEntityRepository.findAll(any(Specification.class))).thenReturn(new ArrayList<>());
+        doNothing().when(estadoEntityRepository).delete(estadoEntity);
+        service.deletar(estadoEntity.getId());
+
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+        verify(this.cidadeEntityRepository, times(1)).findAll(any(Specification.class));
+        verify(this.estadoEntityRepository, times(1)).delete(estadoEntity);
+    }
+
+    @Test
+    @DisplayName("Não deleta estado com Id inválido")
+    public void naoDeveDeletarEstadoQuandoIdForInvalido(){
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Distrito Federal");
+        estadoEntity.setSigla(SiglaEstado.DF);
+
+        when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            service.deletar(2L);
+        });
+
+        verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Não deleta estado com cidade referenciada")
+    public void naoDeveDeletarEstadoComCidadeReferenciada(){
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Distrito Federal");
+        estadoEntity.setSigla(SiglaEstado.DF);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Brasilia");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+        when(cidadeEntityRepository.findAll(any(Specification.class))).thenReturn(List.of(cidadeEntity));
+
+        Assertions.assertThrows(EntityIsReferencedException.class, () -> {
+            service.deletar(estadoEntity.getId());
+        });
+
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+        verify(this.cidadeEntityRepository, times(1)).findAll(any(Specification.class));
+    }
+}
