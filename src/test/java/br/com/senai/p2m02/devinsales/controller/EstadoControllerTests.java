@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -239,6 +240,74 @@ public class EstadoControllerTests {
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
                         .content(bodyRequisicao)
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Deletar estado com autorização")
+    public void deveDeletarEstadoQuandoForAutorizado() throws Exception{
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        doNothing().when(service).deletar(estado.getId());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/state/{id}", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Deletar estado sem autorização")
+    public void naoDeveDeletarEstadoQuandoNaoForAutorizado() throws Exception{
+        // gerando o token
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        doNothing().when(service).deletar(estado.getId());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/state/{id}", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
                 )
                 .andExpect(status().isForbidden());
     }
