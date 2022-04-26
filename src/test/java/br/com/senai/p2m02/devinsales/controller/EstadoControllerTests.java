@@ -71,7 +71,7 @@ public class EstadoControllerTests {
         Assertions.assertNotNull(token);
 
         EstadoEntity estado = new EstadoEntity();
-        estado.setId(1L);
+        estado.setId(27L);
         estado.setNome("Distrito Federal");
         estado.setSigla(SiglaEstado.DF);
 
@@ -88,12 +88,13 @@ public class EstadoControllerTests {
         String responseGet = resultGet.getResponse().getContentAsString();
         Assertions.assertNotEquals(responseGet, "");
         Assertions.assertEquals
-                ("[{\"id\":1,\"nome\":\"Distrito Federal\",\"sigla\":\"DF\"}]", responseGet);
+                ("[{\"id\":27,\"nome\":\"Distrito Federal\",\"sigla\":\"DF\"}]", responseGet);
     }
 
     @Test
     @DisplayName("Listar Estados Com Busca Vazia")
-    public void deveRetornarArrayVazioQuandoNaoHouverOcorrencias() throws Exception {
+
+    public void deveRetornarNoContentQuandoNaoHouverEstados() throws Exception {
         // gerando o token
         String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
 
@@ -142,7 +143,7 @@ public class EstadoControllerTests {
         Assertions.assertNotNull(token);
 
         EstadoEntity estado = new EstadoEntity();
-        estado.setId(1L);
+        estado.setId(27L);
         estado.setNome("Distrito Federal");
         estado.setSigla(SiglaEstado.DF);
 
@@ -242,4 +243,3 @@ public class EstadoControllerTests {
                 .andExpect(status().isForbidden());
     }
 }
-

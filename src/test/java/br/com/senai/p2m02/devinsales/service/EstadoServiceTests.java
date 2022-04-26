@@ -65,7 +65,9 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Salvar Estado")
+
     public void deveSalvarEstadoQuandoCorpoEstaCompleto(){
+
         //Cenário
 //        EstadoEntity estadoEntity = new EstadoEntity();
 //        estadoEntity.setNome("Distrito Federal");
@@ -192,5 +194,3 @@ public class EstadoServiceTests {
             Long idEstado = service.salvar(estadoDTO);
         });
     }
-}
-

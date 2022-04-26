@@ -10,6 +10,7 @@ import java.util.*;
 
 @Entity(name = "usuario")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "userger")
     @SequenceGenerator(name = "userger", sequenceName = "usuario_id_seq", allocationSize = 1)
