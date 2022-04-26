@@ -7,6 +7,8 @@ import br.com.senai.p2m02.devinsales.model.SiglaEstado;
 import br.com.senai.p2m02.devinsales.repository.CidadeEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.EstadoEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.SpecificationsEstadoEntity;
+import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
+import jakarta.persistence.EntityExistsException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,7 +65,9 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Salvar Estado")
-    public void deveSalvarEstado(){
+
+    public void deveSalvarEstadoQuandoCorpoEstaCompleto(){
+
         //Cenário
 //        EstadoEntity estadoEntity = new EstadoEntity();
 //        estadoEntity.setNome("Distrito Federal");
@@ -89,7 +93,104 @@ public class EstadoServiceTests {
         Long idEstado = service.salvar(estadoDTO);
         // Validação
         Assertions.assertEquals(27L, idEstado);
+        verify(this.estadoEntityRepository, times(1)).findFirstByNome(estadoDTO.getNome());
+        verify(this.estadoEntityRepository, times(1)).findFirstBySigla(SiglaEstado.valueOf(estadoDTO.getSigla()));
         verify(this.estadoEntityRepository, times(1)).save(any(EstadoEntity.class));
     }
-}
 
+    @Test
+    @DisplayName("Não Salvar Estado Sem Nome")
+    public void naoDeveSalvarEstadoQuandoCorpoFaltarNome(){
+        //Cenário
+//        EstadoEntity estadoEntity = new EstadoEntity();
+//        estadoEntity.setNome("Distrito Federal");
+//        estadoEntity.setSigla(SiglaEstado.DF);
+
+        EstadoDTO estadoDTO = new EstadoDTO();
+        estadoDTO.setSigla("DF");
+
+        // Validação
+        Assertions.assertThrows(RequiredFieldMissingException.class, () -> {
+            // Execução
+            Long idEstado = service.salvar(estadoDTO);
+        });
+    }
+
+    @Test
+    @DisplayName("Não Salvar Estado Sem Sigla")
+    public void naoDeveSalvarEstadoQuandoCorpoFaltarSigla(){
+        //Cenário
+//        EstadoEntity estadoEntity = new EstadoEntity();
+//        estadoEntity.setNome("Distrito Federal");
+//        estadoEntity.setSigla(SiglaEstado.DF);
+
+        EstadoDTO estadoDTO = new EstadoDTO();
+        estadoDTO.setNome("Distrito Federal");
+
+        // Validação
+        Assertions.assertThrows(RequiredFieldMissingException.class, () -> {
+            // Execução
+            Long idEstado = service.salvar(estadoDTO);
+        });
+    }
+
+    @Test
+    @DisplayName("Não Salvar Estado Com Mesmo Nome")
+    public void naoDeveSalvarEstadoQuandoNomeJaExistir(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setNome("Distrito Federal");
+        estadoEntity.setSigla(SiglaEstado.DF);
+
+        EstadoDTO estadoDTO = new EstadoDTO();
+        estadoDTO.setNome("Distrito Federal");
+        estadoDTO.setSigla("DF");
+
+        when(estadoEntityRepository.findFirstByNome(estadoDTO.getNome())).thenReturn(Optional.of(estadoEntity));
+
+        // Validação
+        Assertions.assertThrows(EntityExistsException.class, () -> {
+            // Execução
+            Long idEstado = service.salvar(estadoDTO);
+        });
+        verify(this.estadoEntityRepository, times(1)).findFirstByNome(estadoDTO.getNome());
+    }
+
+    @Test
+    @DisplayName("Não Salvar Estado Com Mesma Sigla")
+    public void naoDeveSalvarEstadoQuandoSiglaJaExistir(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setNome("Distrito Federal");
+        estadoEntity.setSigla(SiglaEstado.DF);
+
+        EstadoDTO estadoDTO = new EstadoDTO();
+        estadoDTO.setNome("Distrito Federal 2");
+        estadoDTO.setSigla("DF");
+
+        when(estadoEntityRepository.findFirstByNome(estadoDTO.getNome())).thenReturn(Optional.empty());
+        when(estadoEntityRepository.findFirstBySigla(SiglaEstado.valueOf(estadoDTO.getSigla()))).thenReturn(Optional.of(estadoEntity));
+
+        // Validação
+        Assertions.assertThrows(EntityExistsException.class, () -> {
+            // Execução
+            Long idEstado = service.salvar(estadoDTO);
+        });
+
+        verify(this.estadoEntityRepository, times(1)).findFirstByNome(estadoDTO.getNome());
+        verify(this.estadoEntityRepository, times(1)).findFirstBySigla(SiglaEstado.valueOf(estadoDTO.getSigla()));
+    }
+
+    @Test
+    @DisplayName("Não Salvar Estado Com Sigla Inválida")
+    public void naoDeveSalvarEstadoQuandoSiglaForInvalida(){
+        EstadoDTO estadoDTO = new EstadoDTO();
+        estadoDTO.setNome("Bananalândia");
+        estadoDTO.setSigla("BN");
+
+        // Validação
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            // Execução
+            Long idEstado = service.salvar(estadoDTO);
+        });
+    }

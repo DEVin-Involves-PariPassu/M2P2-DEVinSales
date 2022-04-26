@@ -93,6 +93,7 @@ public class EstadoControllerTests {
 
     @Test
     @DisplayName("Listar Estados Com Busca Vazia")
+
     public void deveRetornarNoContentQuandoNaoHouverEstados() throws Exception {
         // gerando o token
         String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
@@ -133,7 +134,6 @@ public class EstadoControllerTests {
                         .header("Content-Type", "application/json" )
                         .content(body))
                 .andExpect(status().isOk()).andReturn();
-
 
         // extraindo o token
         String response = result.getResponse().getContentAsString();
@@ -242,8 +242,4 @@ public class EstadoControllerTests {
                 )
                 .andExpect(status().isForbidden());
     }
-
-
-
-
 }
