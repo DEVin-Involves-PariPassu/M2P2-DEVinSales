@@ -42,13 +42,13 @@ public class EstadoServiceTests {
     private EstadoEntityService service;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     @DisplayName("Listar Estados")
-    public void deveListarEstados(){
+    public void deveListarEstados() {
         //Cenário
         EstadoEntity estadoEntity = new EstadoEntity();
         estadoEntity.setId(1L);
@@ -66,7 +66,7 @@ public class EstadoServiceTests {
     @Test
     @DisplayName("Salvar Estado")
 
-    public void deveSalvarEstadoQuandoCorpoEstaCompleto(){
+    public void deveSalvarEstadoQuandoCorpoEstaCompleto() {
 
         //Cenário
 //        EstadoEntity estadoEntity = new EstadoEntity();
@@ -100,7 +100,7 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Não Salvar Estado Sem Nome")
-    public void naoDeveSalvarEstadoQuandoCorpoFaltarNome(){
+    public void naoDeveSalvarEstadoQuandoCorpoFaltarNome() {
         //Cenário
 //        EstadoEntity estadoEntity = new EstadoEntity();
 //        estadoEntity.setNome("Distrito Federal");
@@ -118,7 +118,7 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Não Salvar Estado Sem Sigla")
-    public void naoDeveSalvarEstadoQuandoCorpoFaltarSigla(){
+    public void naoDeveSalvarEstadoQuandoCorpoFaltarSigla() {
         //Cenário
 //        EstadoEntity estadoEntity = new EstadoEntity();
 //        estadoEntity.setNome("Distrito Federal");
@@ -136,7 +136,7 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Não Salvar Estado Com Mesmo Nome")
-    public void naoDeveSalvarEstadoQuandoNomeJaExistir(){
+    public void naoDeveSalvarEstadoQuandoNomeJaExistir() {
         //Cenário
         EstadoEntity estadoEntity = new EstadoEntity();
         estadoEntity.setNome("Distrito Federal");
@@ -158,7 +158,7 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Não Salvar Estado Com Mesma Sigla")
-    public void naoDeveSalvarEstadoQuandoSiglaJaExistir(){
+    public void naoDeveSalvarEstadoQuandoSiglaJaExistir() {
         //Cenário
         EstadoEntity estadoEntity = new EstadoEntity();
         estadoEntity.setNome("Distrito Federal");
@@ -183,7 +183,7 @@ public class EstadoServiceTests {
 
     @Test
     @DisplayName("Não Salvar Estado Com Sigla Inválida")
-    public void naoDeveSalvarEstadoQuandoSiglaForInvalida(){
+    public void naoDeveSalvarEstadoQuandoSiglaForInvalida() {
         EstadoDTO estadoDTO = new EstadoDTO();
         estadoDTO.setNome("Bananalândia");
         estadoDTO.setSigla("BN");
@@ -194,3 +194,4 @@ public class EstadoServiceTests {
             Long idEstado = service.salvar(estadoDTO);
         });
     }
+}
