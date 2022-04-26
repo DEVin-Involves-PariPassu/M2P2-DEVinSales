@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -88,6 +89,37 @@ public class EstadoControllerTests {
         Assertions.assertNotEquals(responseGet, "");
         Assertions.assertEquals
                 ("[{\"id\":27,\"nome\":\"Distrito Federal\",\"sigla\":\"DF\"}]", responseGet);
+    }
+
+    @Test
+    @DisplayName("Listar Estados Com Busca Vazia")
+    public void deveRetornarNoContentQuandoNaoHouverEstados() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        when(service.listar("asdfg")).thenReturn(new ArrayList<>());
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state")
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .param("nome", "Distrito Federal")
+                )
+                .andExpect(status().isNoContent());
     }
 
     @Test
