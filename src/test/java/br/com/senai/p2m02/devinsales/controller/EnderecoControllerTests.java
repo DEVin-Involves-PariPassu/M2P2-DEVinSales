@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,12 +35,6 @@ public class EnderecoControllerTests {
 
     @MockBean
     EnderecoEntityService enderecoEntityService;
-
-    @MockBean
-    CidadeEntity cidadeEntity;
-
-    @MockBean
-    EstadoEntityService estadoEntityService;
 
     @Test
     @DisplayName("Listar Endereços por ID Autorizado")
@@ -76,9 +71,6 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-
-
-
         when(enderecoEntityService.listarPorId (
                 1L,
                 1L,
@@ -99,6 +91,102 @@ public class EnderecoControllerTests {
                         "\"cidade\":{\"id\":1,\"nome\":\"Florianopolis\"," +
                         "\"estado\":{\"id\":1,\"nome\":\"Santa Catarina\"," +
                         "\"sigla\":\"SC\"}}}", responseGet);
+    }
+
+    @Test
+    @DisplayName("Listar Endereços com ID Cidade Inválido")
+    public void deveRetornarBadRequestQuandoIdCidadeInvalido() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}","a",1L,1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Listar Endereços com ID Estado Inválido")
+    public void deveRetornarBadRequestQuandoIdEstadoInvalido() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,"a",1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Listar Endereços com ID Endereço Inválido")
+    public void deveRetornarBadRequestQuandoIdEnderecoInvalido() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,1L,"a")
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isBadRequest());
     }
 
 }
