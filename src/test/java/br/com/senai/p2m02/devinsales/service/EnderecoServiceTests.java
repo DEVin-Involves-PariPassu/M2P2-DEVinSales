@@ -1,6 +1,5 @@
 package br.com.senai.p2m02.devinsales.service;
 
-import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
@@ -108,6 +107,7 @@ public class EnderecoServiceTests {
         enderecoDTO.setCidadeId(1L);
         enderecoDTO.setComplemento("DevInHouse");
 
+        when(cidadeEntityRepository.findById(cidade.getId())).thenReturn(Optional.of(cidade));
         when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
 
         // Execução
@@ -116,6 +116,38 @@ public class EnderecoServiceTests {
         });
         // Validação
         verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Não Salvar Endereco Quando Cidade Não Existir")
+    public void naoDeveSalvarEnderecoQuandoCidadeNaoExistir(){
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Santa Cataria");
+        estado.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setEstado(estado);
+        cidade.setNome("Florianópolis");
+
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
+        enderecoDTO.setEstadoId(1L);
+        enderecoDTO.setRua("Rua Principal");
+        enderecoDTO.setNumero(123);
+        enderecoDTO.setCidadeId(1L);
+        enderecoDTO.setComplemento("DevInHouse");
+
+        when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
+        when(cidadeEntityRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, ()-> {
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 1L, 2L);
+        });
+        // Validação
+        verify(this.cidadeEntityRepository, times(1)).findById(2L);
     }
 
 }
