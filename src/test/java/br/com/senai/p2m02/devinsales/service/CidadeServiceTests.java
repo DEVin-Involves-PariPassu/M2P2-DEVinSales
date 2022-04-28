@@ -1,6 +1,7 @@
 package br.com.senai.p2m02.devinsales.service;
 
 
+import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.dto.EstadoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
@@ -46,6 +47,115 @@ public class CidadeServiceTests {
     @BeforeEach
     public void setup(){
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    @DisplayName("Salvar cidade com corpo da requisição completo")
+    public void deveSalvarCidadeQuandoCorpoEstaCompleto(){
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeDTO cidadeDTO = new CidadeDTO();
+        cidadeDTO.setNome("Brasília");
+        cidadeDTO.setEstadoId(1L);
+
+        when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
+        when(cidadeEntityRepository.findFirstByNome(cidadeDTO.getNome())).thenReturn(Optional.empty());
+        when(cidadeEntityRepository.save(any(CidadeEntity.class))).thenAnswer(new Answer<CidadeEntity>() {
+            public CidadeEntity answer(InvocationOnMock invocation) throws Throwable {
+                CidadeEntity cidadeRetornada = invocation.getArgument(0);
+                if (cidadeRetornada != null) {
+                    cidadeRetornada.setId(1L);
+                }
+                return cidadeRetornada;
+            }
+        });
+
+        // Execução
+        Long idCidade = service.salvar(cidadeDTO, estado.getId());
+        // Validação
+        Assertions.assertEquals(1L, idCidade);
+        verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
+        verify(this.cidadeEntityRepository, times(1)).findFirstByNome(cidadeDTO.getNome());
+        verify(this.cidadeEntityRepository, times(1)).save(any(CidadeEntity.class));
+    }
+
+    @Test
+    @DisplayName("Não salvar cidade quando estado não existir")
+    public void naoDeveSalvarCidadeQuandoEstadoNaoExistir(){
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeDTO cidadeDTO = new CidadeDTO();
+        cidadeDTO.setNome("Brasília");
+        cidadeDTO.setEstadoId(1L);
+
+        when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, ()-> {
+            Long idCidade = service.salvar(cidadeDTO, 2L);
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Não salvar cidade quando já existir cidade com o mesmo nome")
+    public void naodeveSalvarCidadeQuandoJaExistirCidadeComMesmoNome() {
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Brasília");
+        cidadeEntity.setEstado(estado);
+
+        CidadeDTO cidadeDTO = new CidadeDTO();
+        cidadeDTO.setNome("Brasília");
+        cidadeDTO.setEstadoId(1L);
+
+        when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
+        when(cidadeEntityRepository.findFirstByNome(cidadeDTO.getNome())).thenReturn(Optional.of(cidadeEntity));
+
+        // Execução
+        Assertions.assertThrows(EntityExistsException.class, ()-> {
+            Long idCidade = service.salvar(cidadeDTO, estado.getId());
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
+        verify(this.cidadeEntityRepository, times(1)).findFirstByNome(cidadeDTO.getNome());
+    }
+
+    @Test
+    @DisplayName("Não salvar cidade quando o nome for nulo")
+    public void naoDeveSalvarCidadeQuandoNomeForNulo(){
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeDTO cidadeDTO = new CidadeDTO();
+        cidadeDTO.setEstadoId(1L);
+
+        when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
+
+        // Execução
+        Assertions.assertThrows(RequiredFieldMissingException.class, ()-> {
+            Long idCidade = service.salvar(cidadeDTO, estado.getId());
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
     }
 
     @Test
