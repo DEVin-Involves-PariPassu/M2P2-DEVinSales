@@ -68,6 +68,41 @@ public class EstadoServiceTests {
     }
 
     @Test
+    @DisplayName("Listar Estado Por Id")
+    public void deveListarEstadoPorId(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+        // Execução
+        EstadoEntity estadoRetornado = service.listarPorId(estadoEntity.getId());
+        // Validação
+        Assertions.assertEquals(estadoEntity, estadoRetornado);
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+    }
+
+    @Test
+    @DisplayName("Não Listar Estado Por Id Inválido")
+    public void naoDeveListarEstadoPorIdInvalido(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            EstadoEntity estadoRetornado = service.listarPorId(2L);
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
     @DisplayName("Salvar Estado")
 
     public void deveSalvarEstadoQuandoCorpoEstaCompleto(){
