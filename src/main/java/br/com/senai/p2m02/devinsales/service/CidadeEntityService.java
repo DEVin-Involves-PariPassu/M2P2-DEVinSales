@@ -20,6 +20,11 @@ import java.util.Optional;
 
 @Service
 public class CidadeEntityService {
+
+
+
+
+
     @Autowired
     private CidadeEntityRepository cidadeRepository;
 

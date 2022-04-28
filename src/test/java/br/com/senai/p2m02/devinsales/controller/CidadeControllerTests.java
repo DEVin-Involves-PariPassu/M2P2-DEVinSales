@@ -1,5 +1,6 @@
 package br.com.senai.p2m02.devinsales.controller;
 
+import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
 import br.com.senai.p2m02.devinsales.model.SiglaEstado;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +34,95 @@ public class CidadeControllerTests {
 
     @MockBean
     CidadeEntityService service;
+
+    @Test
+    @DisplayName("Salvar cidade com autorização")
+    public void deveSalvarCidadeQuandoForAutorizado() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Brasilia");
+        cidade.setEstado(estado);
+
+        when(service.salvar(any(CidadeDTO.class), eq(estado.getId()))).thenReturn(1L);
+
+        String bodyRequisicao = "{\n" +
+                "    \"nome\":\"Brasília\",\n" +
+                "    \"estadoId\":1\n" +
+                "}";
+
+        MvcResult resultPost = mockMvc.perform(MockMvcRequestBuilders.post("/state/{id_estado}/city", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(bodyRequisicao)
+                )
+                .andExpect(status().isCreated())
+                .andReturn();
+        String responsePost = resultPost.getResponse().getContentAsString();
+        Assertions.assertNotEquals(responsePost, "");
+        Assertions.assertEquals
+                ("1", responsePost);
+    }
+
+    @Test
+    @DisplayName("Não salvar cidade sem autorização")
+    public void naoDeveSalvarCidadeQuandoNaoForAutorizado() throws Exception {
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Brasilia");
+        cidade.setEstado(estado);
+
+        when(service.salvar(any(CidadeDTO.class), eq(estado.getId()))).thenReturn(1L);
+
+        String bodyRequisicao = "{\n" +
+                "    \"nome\":\"Brasília\",\n" +
+                "    \"estadoId\":1\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/state/{id_estado}/city", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(bodyRequisicao)
+                )
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     @DisplayName("Deletar cidade autorizado")
