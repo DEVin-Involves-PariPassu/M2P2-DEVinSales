@@ -189,4 +189,51 @@ public class EnderecoControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("Listar Endereços Sem Autorização")
+    public void naoDeveListarEnderecosQuandoNaoForAutorizado() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+        CidadeEntity cidade = new CidadeEntity();
+        EstadoEntity estado = new EstadoEntity();
+        cidade.setId(1L);
+        cidade.setNome("Florianopolis");
+        cidade.setEstado(estado);
+        estado.setId(1L);
+        estado.setNome("Santa Catarina");
+        estado.setSigla(SiglaEstado.SC);
+        endereco.setId(1L);
+        endereco.setRua("Rua Principal");
+        endereco.setNumero(123);
+        endereco.setCidade(cidade);
+        endereco.setComplemento("Primavera Garden");
+
+        when(enderecoEntityService.listarPorId (
+                1L,
+                1L,
+                1L)).thenReturn(endereco);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isForbidden());
+    }
+
 }
