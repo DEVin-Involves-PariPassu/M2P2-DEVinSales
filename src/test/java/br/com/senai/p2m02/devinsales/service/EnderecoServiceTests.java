@@ -1,6 +1,5 @@
 package br.com.senai.p2m02.devinsales.service;
 
-import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
@@ -228,8 +227,8 @@ public class EnderecoServiceTests {
         cidade.setId(1L);
         cidade.setEstado(estadoEntityInvalido);
         cidade.setNome("Florianópolis");
-        EnderecoDTO enderecoDTO = new EnderecoDTO();
 
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
         enderecoDTO.setCidadeId(1L);
         enderecoDTO.setNumero(123);
         enderecoDTO.setComplemento("DevInHouse");
@@ -259,8 +258,8 @@ public class EnderecoServiceTests {
         cidadeEntityInvalido.setId(1L);
         cidadeEntityInvalido.setEstado(estado);
         cidadeEntityInvalido.setNome("Florianópolis");
-        EnderecoDTO enderecoDTO = new EnderecoDTO();
 
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
         enderecoDTO.setCidadeId(1L);
         enderecoDTO.setNumero(123);
         enderecoDTO.setComplemento("DevInHouse");
@@ -275,6 +274,43 @@ public class EnderecoServiceTests {
         // Validação
         verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
         verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntityInvalido.getId());
+    }
+
+    @Test
+    @DisplayName("Não Deleta Endereco com ID de Estado Inválido ")
+    public void naoDeveDeletarEnderecoQuandoIDEstadoForInvalido(){
+
+        EstadoEntity estadoEntityInvalido = new EstadoEntity();
+        estadoEntityInvalido.setId(2L);
+        estadoEntityInvalido.setNome("Paraná");
+        estadoEntityInvalido.setSigla(SiglaEstado.PR);
+
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Santa Catarina");
+        estadoEntity.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Florianópolis");
+        cidadeEntity.setEstado(estadoEntity);
+
+        EnderecoEntity enderecoEntity = new EnderecoEntity();
+        enderecoEntity.setId(1L);
+        enderecoEntity.setCidade(cidadeEntity);
+        enderecoEntity.setNumero(123);
+        enderecoEntity.setComplemento("DevInHouse");
+
+        when(estadoEntityRepository.findById(estadoEntityInvalido.getId())).thenReturn(Optional.of(estadoEntityInvalido));
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(enderecoEntityRepository.findById(enderecoEntity.getId())).thenReturn(Optional.of(enderecoEntity));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            enderecoEntityService.deletar(estadoEntityInvalido.getId(), cidadeEntity.getId(),enderecoEntity.getId());
+        });
+
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.enderecoEntityRepository, times(1)).findById(enderecoEntity.getId());
     }
 
 }
