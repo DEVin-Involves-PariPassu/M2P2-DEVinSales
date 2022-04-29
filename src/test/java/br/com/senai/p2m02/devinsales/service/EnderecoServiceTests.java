@@ -219,13 +219,18 @@ public class EnderecoServiceTests {
     public void naoDeveSalvarEnderecoQuandoIDEstadoForInválido(){
 
         EstadoEntity estadoEntityInvalido = new EstadoEntity();
-        estadoEntityInvalido.setId(1L);
-        estadoEntityInvalido.setNome("Santa Catarina");
-        estadoEntityInvalido.setSigla(SiglaEstado.SC);
+        estadoEntityInvalido.setId(2L);
+        estadoEntityInvalido.setNome("Paraná");
+        estadoEntityInvalido.setSigla(SiglaEstado.PR);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Santa Catarina");
+        estado.setSigla(SiglaEstado.SC);
 
         CidadeEntity cidade = new CidadeEntity();
         cidade.setId(1L);
-        cidade.setEstado(estadoEntityInvalido);
+        cidade.setEstado(estado);
         cidade.setNome("Florianópolis");
 
         EnderecoDTO enderecoDTO = new EnderecoDTO();
@@ -235,45 +240,15 @@ public class EnderecoServiceTests {
 
         when(estadoEntityRepository.findById(estadoEntityInvalido.getId())).thenReturn(Optional.of(estadoEntityInvalido));
         when(cidadeEntityRepository.findById(cidade.getId())).thenReturn(Optional.of(cidade));
-
-        // Execução
-        Assertions.assertThrows(RequiredFieldMissingException.class, ()-> {
-            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntityInvalido.getId(), 1L);
-        });
-        // Validação
-        verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
-        verify(this.cidadeEntityRepository, times(1)).findById(cidade.getId());
-    }
-
-    @Test
-    @DisplayName("Não Salvar Endereço Quando ID Cidade for Inválido")
-    public void naoDeveSalvarEnderecoQuandoIDCidadeForInválido() {
-
-        EstadoEntity estado = new EstadoEntity();
-        estado.setId(1L);
-        estado.setNome("Santa Catarina");
-        estado.setSigla(SiglaEstado.SC);
-
-        CidadeEntity cidadeEntityInvalido = new CidadeEntity();
-        cidadeEntityInvalido.setId(1L);
-        cidadeEntityInvalido.setEstado(estado);
-        cidadeEntityInvalido.setNome("Florianópolis");
-
-        EnderecoDTO enderecoDTO = new EnderecoDTO();
-        enderecoDTO.setCidadeId(1L);
-        enderecoDTO.setNumero(123);
-        enderecoDTO.setComplemento("DevInHouse");
-
         when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
-        when(cidadeEntityRepository.findById(cidadeEntityInvalido.getId())).thenReturn(Optional.of(cidadeEntityInvalido));
 
         // Execução
-        Assertions.assertThrows(RequiredFieldMissingException.class, () -> {
-            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 1L, cidadeEntityInvalido.getId());
+        Assertions.assertThrows(IllegalArgumentException.class, ()-> {
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntityInvalido.getId(), cidade.getId());
         });
         // Validação
-        verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntityInvalido.getId());
+        verify(this.cidadeEntityRepository, times(1)).findById(cidade.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
     }
 
     @Test
@@ -312,5 +287,4 @@ public class EnderecoServiceTests {
         verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
         verify(this.enderecoEntityRepository, times(1)).findById(enderecoEntity.getId());
     }
-
 }
