@@ -1,12 +1,9 @@
 package br.com.senai.p2m02.devinsales.controller;
 
 import br.com.senai.p2m02.devinsales.dto.EstadoDTO;
-import br.com.senai.p2m02.devinsales.dto.ProductDTO;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
-import br.com.senai.p2m02.devinsales.model.ProductEntity;
 import br.com.senai.p2m02.devinsales.model.SiglaEstado;
 import br.com.senai.p2m02.devinsales.service.EstadoEntityService;
-import br.com.senai.p2m02.devinsales.service.ProductService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,6 +151,82 @@ public class EstadoControllerTests {
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
                         .param("nome", "Distrito Federal")
+                )
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    @DisplayName("Listar Estado Por ID Autorizado ")
+    public void deveListarEstadoPorIdQuandoForAutorizado() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        when(service.listarPorId(1L)).thenReturn(estado);
+
+        //executando controller com o token
+        MvcResult resultGet = mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_estado}",1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+        String responseGet = resultGet.getResponse().getContentAsString();
+        Assertions.assertNotEquals(responseGet, "");
+        Assertions.assertEquals
+                ("{\"id\":1,\"nome\":\"Distrito Federal\",\"sigla\":\"DF\"}", responseGet);
+    }
+
+    @Test
+    @DisplayName("Não Listar Estado Por ID Sem Autorização ")
+    public void naoDeveListarEstadoPorIdQuandoNaoForAutorizado() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Distrito Federal");
+        estado.setSigla(SiglaEstado.DF);
+
+        when(service.listarPorId(1L)).thenReturn(estado);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_estado}",1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
                 )
                 .andExpect(status().isForbidden());
     }
