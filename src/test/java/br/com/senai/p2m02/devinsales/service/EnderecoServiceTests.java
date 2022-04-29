@@ -246,4 +246,35 @@ public class EnderecoServiceTests {
         verify(this.cidadeEntityRepository, times(1)).findById(cidade.getId());
     }
 
+    @Test
+    @DisplayName("Não Salvar Endereço Quando ID Cidade for Inválido")
+    public void naoDeveSalvarEnderecoQuandoIDCidadeForInválido() {
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Santa Catarina");
+        estado.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidadeEntityInvalido = new CidadeEntity();
+        cidadeEntityInvalido.setId(1L);
+        cidadeEntityInvalido.setEstado(estado);
+        cidadeEntityInvalido.setNome("Florianópolis");
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
+
+        enderecoDTO.setCidadeId(1L);
+        enderecoDTO.setNumero(123);
+        enderecoDTO.setComplemento("DevInHouse");
+
+        when(estadoEntityRepository.findById(estado.getId())).thenReturn(Optional.of(estado));
+        when(cidadeEntityRepository.findById(cidadeEntityInvalido.getId())).thenReturn(Optional.of(cidadeEntityInvalido));
+
+        // Execução
+        Assertions.assertThrows(RequiredFieldMissingException.class, () -> {
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 1L, cidadeEntityInvalido.getId());
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntityInvalido.getId());
+    }
+
 }
