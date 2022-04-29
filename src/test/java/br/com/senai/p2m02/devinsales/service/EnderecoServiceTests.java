@@ -78,9 +78,8 @@ public class EnderecoServiceTests {
             }
         });
 
-        // Execução
         Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntity.getId(), cidadeEntity.getId());
-        // Validação
+
         Assertions.assertEquals(1L, idEndereco);
         verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
         verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
@@ -111,11 +110,10 @@ public class EnderecoServiceTests {
         when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
         when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
 
-        // Execução
         Assertions.assertThrows(EntityNotFoundException.class, ()-> {
-            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 2L, 1L);
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 2L, cidadeEntity.getId());
         });
-        // Validação
+
         verify(this.estadoEntityRepository, times(1)).findById(2L);
     }
 
@@ -143,11 +141,10 @@ public class EnderecoServiceTests {
         when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
         when(cidadeEntityRepository.findById(2L)).thenReturn(Optional.empty());
 
-        // Execução
         Assertions.assertThrows(EntityNotFoundException.class, ()-> {
-            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 1L, 2L);
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntity.getId(), 2L);
         });
-        // Validação
+
         verify(this.cidadeEntityRepository, times(1)).findById(2L);
     }
 
@@ -174,13 +171,9 @@ public class EnderecoServiceTests {
         when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
         when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
 
-        // Execução
         Assertions.assertThrows(RequiredFieldMissingException.class, ()-> {
             Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntity.getId(), cidadeEntity.getId());
         });
-        // Validação
-        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
     }
 
     @Test
@@ -205,13 +198,9 @@ public class EnderecoServiceTests {
         when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
         when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
 
-        // Execução
         Assertions.assertThrows(RequiredFieldMissingException.class, ()-> {
             Long idEndereco = enderecoEntityService.salvar(enderecoDTO, 1L, 1L);
         });
-        // Validação
-        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
     }
 
     @Test
@@ -242,12 +231,10 @@ public class EnderecoServiceTests {
         when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
         when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
 
-        // Execução
         Assertions.assertThrows(IllegalArgumentException.class, ()-> {
             Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntityInvalido.getId(), cidadeEntity.getId());
         });
-        // Validação
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+
         verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
     }
 
@@ -284,8 +271,6 @@ public class EnderecoServiceTests {
         });
 
         verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
-        verify(this.enderecoEntityRepository, times(1)).findById(enderecoEntity.getId());
     }
 
     @Test
@@ -316,7 +301,5 @@ public class EnderecoServiceTests {
         });
 
         verify(this.enderecoEntityRepository, times(1)).findById(2L);
-        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
-        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
     }
 }
