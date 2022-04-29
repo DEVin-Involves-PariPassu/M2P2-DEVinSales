@@ -50,6 +50,108 @@ public class CidadeServiceTests {
     }
 
     @Test
+    @DisplayName("Listar Cidade Por Id")
+    public void deveListarCidadePorId(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+        // Execução
+        CidadeEntity cidadeRetornado = service.listarPorId(cidadeEntity.getId(), estadoEntity.getId());
+        // Validação
+        Assertions.assertEquals(cidadeEntity, cidadeRetornado);
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+    }
+
+    @Test
+    @DisplayName("Não Listar Cidade Por Id Inexistente")
+    public void naoDeveListarCidadePorIdInexistente(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(2L)).thenReturn(Optional.empty());
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            CidadeEntity cidadeRetornado = service.listarPorId(2L, estadoEntity.getId());
+        });
+        // Validação
+        verify(this.cidadeEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Não Listar Cidade Por Id de Estado Inexistente")
+    public void naoDeveListarCidadePorIdDeEstadoInexistente(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            CidadeEntity cidadeRetornado = service.listarPorId(cidadeEntity.getId(), 2L);
+        });
+        // Validação
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Não Listar Cidade Por Id de Estado Inválido")
+    public void naoDeveListarCidadePorIdDeEstadoInvalido(){
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        EstadoEntity estadoEntityInvalido = new EstadoEntity();
+        estadoEntityInvalido.setId(2L);
+        estadoEntityInvalido.setNome("Santa Catarina");
+        estadoEntityInvalido.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(estadoEntityRepository.findById(estadoEntityInvalido.getId())).thenReturn(Optional.of(estadoEntityInvalido));
+        // Execução
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            CidadeEntity cidadeRetornado = service.listarPorId(cidadeEntity.getId(), estadoEntityInvalido.getId());
+        });
+        // Validação
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
+    }
+
+    @Test
     @DisplayName("Salvar cidade com corpo da requisição completo")
     public void deveSalvarCidadeQuandoCorpoEstaCompleto(){
 
