@@ -94,7 +94,7 @@ public class EnderecoServiceTests {
 
         EstadoEntity estado = new EstadoEntity();
         estado.setId(1L);
-        estado.setNome("Santa Cataria");
+        estado.setNome("Santa Catarina");
         estado.setSigla(SiglaEstado.SC);
 
         CidadeEntity cidade = new CidadeEntity();
@@ -126,7 +126,7 @@ public class EnderecoServiceTests {
 
         EstadoEntity estado = new EstadoEntity();
         estado.setId(1L);
-        estado.setNome("Santa Cataria");
+        estado.setNome("Santa Catarina");
         estado.setSigla(SiglaEstado.SC);
 
         CidadeEntity cidade = new CidadeEntity();
@@ -158,7 +158,7 @@ public class EnderecoServiceTests {
 
         EstadoEntity estado = new EstadoEntity();
         estado.setId(1L);
-        estado.setNome("Santa Cataria");
+        estado.setNome("Santa Catarina");
         estado.setSigla(SiglaEstado.SC);
 
         CidadeEntity cidade = new CidadeEntity();
@@ -190,7 +190,7 @@ public class EnderecoServiceTests {
 
         EstadoEntity estado = new EstadoEntity();
         estado.setId(1L);
-        estado.setNome("Santa Cataria");
+        estado.setNome("Santa Catarina");
         estado.setSigla(SiglaEstado.SC);
 
         CidadeEntity cidade = new CidadeEntity();
@@ -212,6 +212,37 @@ public class EnderecoServiceTests {
         });
         // Validação
         verify(this.estadoEntityRepository, times(1)).findById(estado.getId());
+        verify(this.cidadeEntityRepository, times(1)).findById(cidade.getId());
+    }
+
+    @Test
+    @DisplayName("Não Salvar Endereço Quando ID Estado for Inválido")
+    public void naoDeveSalvarEnderecoQuandoIDEstadoForInválido(){
+
+        EstadoEntity estadoEntityInvalido = new EstadoEntity();
+        estadoEntityInvalido.setId(1L);
+        estadoEntityInvalido.setNome("Santa Catarina");
+        estadoEntityInvalido.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setEstado(estadoEntityInvalido);
+        cidade.setNome("Florianópolis");
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
+
+        enderecoDTO.setCidadeId(1L);
+        enderecoDTO.setNumero(123);
+        enderecoDTO.setComplemento("DevInHouse");
+
+        when(estadoEntityRepository.findById(estadoEntityInvalido.getId())).thenReturn(Optional.of(estadoEntityInvalido));
+        when(cidadeEntityRepository.findById(cidade.getId())).thenReturn(Optional.of(cidade));
+
+        // Execução
+        Assertions.assertThrows(RequiredFieldMissingException.class, ()-> {
+            Long idEndereco = enderecoEntityService.salvar(enderecoDTO, estadoEntityInvalido.getId(), 1L);
+        });
+        // Validação
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntityInvalido.getId());
         verify(this.cidadeEntityRepository, times(1)).findById(cidade.getId());
     }
 
