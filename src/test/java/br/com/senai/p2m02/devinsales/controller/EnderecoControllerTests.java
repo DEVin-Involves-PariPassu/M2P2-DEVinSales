@@ -1,5 +1,7 @@
 package br.com.senai.p2m02.devinsales.controller;
 
+import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
+import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
 import br.com.senai.p2m02.devinsales.model.EstadoEntity;
@@ -20,6 +22,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,7 +35,7 @@ public class EnderecoControllerTests {
     MockMvc mockMvc;
 
     @MockBean
-    EnderecoEntityService enderecoEntityService;
+    EnderecoEntityService service;
 
     @Test
     @DisplayName("Listar Endereços por ID Autorizado")
@@ -66,7 +70,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(enderecoEntityService.listarPorId (
+        when(service.listarPorId (
                 1L,
                 1L,
                 1L)).thenReturn(endereco);
@@ -107,7 +111,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}","a",1L,1L)
                         .header("Authorization", "Bearer " + token)
@@ -138,7 +142,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,"a",1L)
@@ -170,7 +174,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,1L,"a")
@@ -213,7 +217,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(enderecoEntityService.listarPorId (
+        when(service.listarPorId (
                 1L,
                 1L,
                 1L)).thenReturn(endereco);
@@ -261,7 +265,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(enderecoEntityService.listar (
+        when(service.listar (
                 1L,
                 1L,
                 "Rua Principal",
@@ -324,7 +328,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(enderecoEntityService.listar(
+        when(service.listar(
                 2L,
                 2L,
                 "Rua Principal",
@@ -378,7 +382,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(enderecoEntityService.listar(
+        when(service.listar(
                 2L,
                 2L,
                 "Rua Principal",
@@ -395,4 +399,109 @@ public class EnderecoControllerTests {
                 )
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("Salvar endereço com autorização")
+    public void deveSalvarEnderecoQuandoForAutorizado() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Santa Catarina");
+        estado.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Florianopolis");
+        cidade.setEstado(estado);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+        endereco.setId(1L);
+        endereco.setRua("Rua Principal");
+        endereco.setNumero(123);
+        endereco.setComplemento("Primavera Garden");
+        endereco.setCidade(cidade);
+
+        when(service.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
+
+        String bodyRequisicao = "{\"rua\":\"Rua Principal\"," +
+                "\"numero\":123,\"complemento\":\"Primavera Garden\"," +
+                "\"cidade\":{\"id\":1,\"nome\":\"Florianopolis\"," +
+                "\"estado\":{\"id\":1,\"nome\":\"Santa Catarina\"," +
+                "\"sigla\":\"SC\"}}}";
+
+        MvcResult resultPost = mockMvc.perform(MockMvcRequestBuilders.post("/state/{id_estado}/city/{id_city}/address", 1L, 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(bodyRequisicao)
+                )
+                .andExpect(status().isCreated())
+                .andReturn();
+        String responsePost = resultPost.getResponse().getContentAsString();
+        Assertions.assertNotEquals(responsePost, "");
+        Assertions.assertEquals
+                ("1", responsePost);
+    }
+
+    @Test
+    @DisplayName("Não salvar endereço sem autorização")
+    public void naoDeveSalvarEnderecoQuandoNaoForAutorizado() throws Exception {
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Santa Catarina");
+        estado.setSigla(SiglaEstado.SC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Florianopolis");
+        cidade.setEstado(estado);
+
+        EnderecoEntity endereco = new EnderecoEntity();
+        endereco.setId(1L);
+        endereco.setRua("Rua Principal");
+        endereco.setNumero(123);
+        endereco.setComplemento("Primavera Garden");
+        endereco.setCidade(cidade);
+
+        when(service.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
+
+        String bodyRequisicao = "{\"rua\":\"Rua Principal\"," +
+                "\"numero\":123,\"complemento\":\"Primavera Garden\"," +
+                "\"cidade\":{\"id\":1,\"nome\":\"Florianopolis\"," +
+                "\"estado\":{\"id\":1,\"nome\":\"Santa Catarina\"," +
+                "\"sigla\":\"SC\"}}}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/state/{id_estado}/city/{id_city}/address", 1L, 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(bodyRequisicao)
+        ).andExpect(status().isForbidden());
+    }
 }
+
