@@ -1,4 +1,4 @@
-package br.com.senai.p2m02.devinsales.service;
+package br.com.senai.p2m02.devinsales.controller;
 
 import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.ProductEntity;
@@ -6,8 +6,13 @@ import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
+import br.com.senai.p2m02.devinsales.service.ItemVendaEntityService;
+import br.com.senai.p2m02.devinsales.service.VendaEntityService;
 import jakarta.persistence.EntityNotFoundException;
 
+import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
@@ -31,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 
-public class VendaEntityControllerTest {
+public class VendaEntityControllerTests {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -54,25 +59,50 @@ public class VendaEntityControllerTest {
     @Mock
     private ProductRepository productRepository;
 
-    @LocalServerPort
-    private int port;
 
     @Test
-    public void getVenda1() throws Exception {
+    @DisplayName("Caso exista a venda deve-se retornar o status de sucesso")
+    public void casoExistaVendaDeveRetornarStatusSucesso() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
 
         when(vendaEntityRepository.findById(anyLong())).thenReturn(null);
 
         mockMvc
                 .perform(MockMvcRequestBuilders.get("/sales/1")
-
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void getVenda2() throws Exception {
+    @DisplayName("Caso não exista venda com id_venda e retorna exceção")
+    public void casoNaoExistaVendaIdVendaRetornaExcecao() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
 
         when(vendaEntityRepository.findById(anyLong())).thenReturn(Optional.of(new VendaEntity()));
 
@@ -80,13 +110,28 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.get("/sales/20")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void patchItensVenda1() throws Exception {
+    @DisplayName("Não atualiza caso não exista uma venda com id_venda ou item_venda com id_item enviado")
+    public void naoAtualizaCasoNaoExistaUmaVendaComIdVendaOuItem_vendaComIdItemEnviado() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         itemVendaEntity.setProduto(null);
         itemVendaEntity.setPrecoUnitario(null);
@@ -100,14 +145,29 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.patch("/sales/10/venda/1")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
-    public void patchItensVenda2() throws Exception {
+    @DisplayName("Não atualiza caso seja enviado um id_item cuja venda seja diferente do id_venda enviado e retorna exceção")
+    public void naoAtualizaCasoSejaEnviadoUmIdItemCujaVendaSejaDiferenteDoIdVendaEnviadoRetornaExcecao() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         VendaEntity vendaEntity = new VendaEntity();
         VendaEntity vendaEntity2 = new VendaEntity();
@@ -132,13 +192,28 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.patch("/sales/2/item/1/quantity/2")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void patchItensVenda3() throws Exception {
+    @DisplayName("Não atualiza caso quantidade dos itens seja <= 0 e retorna exceção")
+    public void naoAtualizaCasoQuantidadeDosItensSejaMenorIgualZeroRetornaExcecao() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         VendaEntity vendaEntity = new VendaEntity();
         VendaEntity vendaEntity2 = new VendaEntity();
@@ -162,13 +237,29 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.patch("/sales/2/item/1/quantity/-2")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
+
                 )
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void patchItensVenda4() throws Exception {
+    @DisplayName("Caso a atualização ocorra com sucesso")
+    public void casoAtualizacaoOcorraComSucesso() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         VendaEntity vendaEntity = new VendaEntity();
         VendaEntity vendaEntity2 = new VendaEntity();
@@ -192,13 +283,28 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.patch("/sales/1/item/1/quantity/2")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    public void patchItensPrice() throws Exception {
+    @DisplayName("Não atualiza caso preço dos itens seja <= 0 e retorna exceção")
+    public void naoAtualizaCasoPrecoDosItensSejaMenorIgualZeroRetornaExcecao() throws Exception {
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
         ItemVendaEntity itemVendaEntity = new ItemVendaEntity();
         VendaEntity vendaEntity = new VendaEntity();
         VendaEntity vendaEntity2 = new VendaEntity();
@@ -222,7 +328,7 @@ public class VendaEntityControllerTest {
                 .perform(MockMvcRequestBuilders.patch("/sales/2/item/1/price/-2")
 
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Basic YWRtaW46YWRtaW4xMjM=")
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isBadRequest());
     }
