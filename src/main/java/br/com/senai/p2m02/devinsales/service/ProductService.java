@@ -28,7 +28,7 @@ public class ProductService {
 
     public Long insert(ProductDTO productDTO){
         ProductEntity product = validationsPost(productDTO);
-        productRepository.save(product);
+        this.productRepository.save(product);
         return product.getId();
     }
 
@@ -37,7 +37,7 @@ public class ProductService {
                 new EntityNotFoundException("Não há nenhum produto com este Id"));
     }
 
-    private ProductEntity validationsPost(ProductDTO productDTO){
+    public ProductEntity validationsPost(ProductDTO productDTO){
         existsNome(productDTO);
         isUniqueNomeProduct(productDTO);
         existsPreco(productDTO);
@@ -50,34 +50,34 @@ public class ProductService {
         return product;
     }
 
-    private void precoValido(ProductDTO productDTO){
+    public void precoValido(ProductDTO productDTO){
         if(productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0){
             throw new IllegalArgumentException("Valor do produto inválido.");
         }
     }
 
-    private void existsPreco(ProductDTO productDTO){
+    public void existsPreco(ProductDTO productDTO){
         if(productDTO.getPreco_sugerido() == null){
             throw new RequiredFieldMissingException("O valor do produto é obrigatório.");
         }
     }
 
-    private void isUniqueNomeProduct(ProductDTO productDTO) {
-        Optional<ProductEntity> optionalProduct = productRepository.findByNome(productDTO.getNome());
+    public void isUniqueNomeProduct(ProductDTO productDTO) {
+        Optional<ProductEntity> optionalProduct = this.productRepository.findByNome(productDTO.getNome());
         if(optionalProduct.isPresent()){
             throw new EntityExistsException("Já existe um produto cadastrado com o nome " + productDTO.getNome());
         }
     }
 
-    private void isUniqueOrTheSame(ProductDTO productDTO, Long id_produto) {
-        Optional<ProductEntity> optionalProduct = productRepository.findByNome(productDTO.getNome());
-        Optional<ProductEntity> optionalId = productRepository.findById(id_produto);
+    public void isUniqueOrTheSame(ProductDTO productDTO, Long id_produto) {
+        Optional<ProductEntity> optionalProduct = this.productRepository.findByNome(productDTO.getNome());
+        Optional<ProductEntity> optionalId = this.productRepository.findById(id_produto);
         if(optionalProduct.isPresent() && !optionalId.isPresent()){
             throw new EntityExistsException("Já existe um produto cadastrado com o nome " + productDTO.getNome());
         }
     }
 
-    private void existsNome(ProductDTO productDTO){
+    public void existsNome(ProductDTO productDTO){
         if(productDTO.getNome().isBlank()){
             throw new RequiredFieldMissingException("O nome do produto é obrigatório.");
         }
@@ -124,18 +124,10 @@ public class ProductService {
                                         ProductDTO productDTO){
         ProductEntity product = findById(id_produto);
 
-        if (productDTO.getNome().isBlank()){
             existsNome(productDTO);
-        }
-        if (productDTO.getPreco_sugerido() == null){
             existsPreco(productDTO);
-        }
-        if(!productDTO.getNome().isBlank()){
             isUniqueNomeProduct(productDTO);
-        }
-        if (productDTO.getPreco_sugerido().compareTo(BigDecimal.ZERO) <= 0){
             precoValido(productDTO);
-        }
 
         return  product;
     }

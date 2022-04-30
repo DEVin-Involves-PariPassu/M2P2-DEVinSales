@@ -2,7 +2,6 @@ package br.com.senai.p2m02.devinsales.api.v1;
 
 import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.ProductDTO;
-import br.com.senai.p2m02.devinsales.model.ProductEntity;
 import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
@@ -13,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/product")
@@ -36,8 +35,10 @@ public class ProductController {
                                               @Valid @RequestBody ProductDTO productDTO) {
 
         if (capturaUsuarioLogadoPeloToken(auth)) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
            Long productId = service.insert(productDTO);
-            return new ResponseEntity<>(productId, HttpStatus.CREATED);
+
+           return new ResponseEntity<>(productId, HttpStatus.CREATED);
     }
 
 
