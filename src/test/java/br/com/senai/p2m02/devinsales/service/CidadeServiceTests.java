@@ -388,5 +388,62 @@ public class CidadeServiceTests {
         verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
         verify(this.enderecoEntityRepository, times(1)).findAll(any(Specification.class));
     }
+
+    @Test
+    @DisplayName("Listar Cidades Por Estado")
+    public void deveListarCidadesPorEstado(){
+
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+
+        // Execução
+        List<CidadeEntity> cidadesRetornados = service.listar(estadoEntity.getNome(), estadoEntity.getId());
+
+
+        // Validação
+        Assertions.assertEquals(cidadeEntity, cidadesRetornados);
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+    }
+
+    @Test
+    @DisplayName("Não Listar Cidades Por Id de Estado Inexistente")
+    public void naoDeveListarCidadesPorEstadoInexistente() {
+        //Cenário
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(estadoEntityRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // Execução
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            List<CidadeEntity> cidadesRetornados = service.listar(estadoEntity.getNome(), 2l);
+        });
+
+
+        // Validação
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.estadoEntityRepository, times(1)).findById(2L);
+    }
+
 }
 
