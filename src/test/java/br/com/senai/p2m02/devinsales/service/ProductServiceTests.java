@@ -6,6 +6,7 @@ import br.com.senai.p2m02.devinsales.model.ProductEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,6 @@ public class ProductServiceTests {
     @InjectMocks
     private ProductService service = new ProductService();
 
-
     private ProductDTO productDTO;
     private ProductEntity productEntity;
     private Optional<ProductEntity> optionalProduct;
@@ -49,6 +49,15 @@ public class ProductServiceTests {
         startProduct();
     }
 
+    private void startProduct() {
+        productDTO = new ProductDTO();
+        productDTO.setNome(NOME);
+        productDTO.setPreco_sugerido(PRECO);
+        productEntity = new ProductEntity(ID, NOME, PRECO);
+        optionalProduct = Optional.of(new ProductEntity(ID, NOME, PRECO));
+        this.productRepository.save(productEntity);
+        service.insert(productDTO);
+    }
 
 
     @Test
@@ -123,30 +132,127 @@ public class ProductServiceTests {
     @DisplayName("Produto com nome inválido")
     public void deveLancarUmaExcecaoQuandoTentarAdicionarUmProdutoComNomeInvalido(){
 
-        ProductDTO novoProduto = new ProductDTO();
-        novoProduto.setPreco_sugerido(BigDecimal.valueOf(15.00));
-        novoProduto.setNome("");
-
-        when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
+        productDTO.setNome("");
 
         assertThrows(RequiredFieldMissingException.class, () -> {
-            service.insert(novoProduto);
+            service.insert(productDTO);
         });
     }
 
     @Test
-    @DisplayName("Produto com preço inválido")
-    public void deveLancarUmaExcecaoQuandoTentarAdicionarUmProdutoComPrecoInvalido(){
+    @DisplayName("Produto sem preço")
+    public void deveLancarUmaExcecaoQuandoTentarAdicionarUmProdutoSemPreco(){
 
         ProductDTO novoProduto = new ProductDTO();
         novoProduto.setNome("Café em grãos");
-        when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
 
         Assertions.assertThrows(RequiredFieldMissingException.class, () -> {
             service.insert(novoProduto);
         });
 
     }
+
+    @Test
+    @DisplayName("Produto com preço igual a zero")
+    public void deveLancarUmaExcecaoQuandoTentarAdicionarUmProdutoComPrecoIgualAZero(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(0.00));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.insert(productDTO);
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.updateDoPut(1L,productDTO);
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.updateDoPatch(1L,productDTO);
+        });
+
+    }
+
+    @Test
+    @DisplayName("Produto com preço inválido")
+    public void deveLancarUmaExcecaoQuandoTentarAdicionarUmProdutoComPrecoInvalido(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(-1.00));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.insert(productDTO);
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.updateDoPut(1L,productDTO);
+        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            service.updateDoPatch(1L,productDTO);
+        });
+
+    }
+
+    @Test
+    @DisplayName("Não atualizar produto")
+    public void naoDeveAtualizarOProdutoQuandoOIdNaoExistir(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(11.00));
+        productDTO.setNome("Uva");
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            service.updateDoPut(2L, productDTO);
+        });
+        assertThrows(EntityNotFoundException.class, () -> {
+            service.updateDoPatch(2L, productDTO);
+        });
+
+    }
+
+
+    @Test
+    @DisplayName("Nome existente - não atualizar/salvar")
+    public void naoDeveGerarOProdutoQuandoONomeJaExistir(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(productRepository.findByNome(productEntity.getNome())).thenReturn(Optional.of(productEntity));
+
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(510.00));
+        productDTO.setNome(NOME);
+
+        assertThrows(EntityExistsException.class, () -> {
+            service.updateDoPut(1L, productDTO);
+        });
+        assertThrows(EntityExistsException.class, () -> {
+            service.insert(productDTO);
+        });
+    }
+
+
+    @Test
+    @DisplayName("Atualizar produto")
+    public void deveAtualizarOProdutoQuandoPassarNovosDados(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(11.00));
+        productDTO.setNome("Uva");
+
+        Long response = service.updateDoPut(1L, productDTO);
+
+        assertNotNull(response);
+        assertEquals(Long.class, response.getClass());
+    }
+
+
+    @Test
+    @DisplayName("Atualizar produto - patch")
+    public void deveAtualizarOProdutoQuandoAlterarOsDados(){
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+
+        productDTO.setPreco_sugerido(BigDecimal.valueOf(11.00));
+        productDTO.setNome("Uva");
+
+        Long response = service.updateDoPatch(1L, productDTO);
+
+        assertNotNull(response);
+        assertEquals(Long.class, response.getClass());
+    }
+
 
     @Test
     @DisplayName("Salvar no repository")
@@ -162,17 +268,6 @@ public class ProductServiceTests {
         assertEquals(PRECO, response.getPreco_sugerido());
     }
 
-
-
-    private void startProduct() {
-        productDTO = new ProductDTO();
-        productDTO.setNome(NOME);
-        productDTO.setPreco_sugerido(PRECO);
-        productEntity = new ProductEntity(ID, NOME, PRECO);
-        optionalProduct = Optional.of(new ProductEntity(ID, NOME, PRECO));
-        this.productRepository.save(productEntity);
-        service.insert(productDTO);
-    }
 
 
 }
