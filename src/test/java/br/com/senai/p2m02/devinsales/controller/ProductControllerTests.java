@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,12 +20,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -243,7 +238,7 @@ public class ProductControllerTests {
                             .header("Content-Type", "application/json" )
                             .content(body))
                     .andExpect(status().isForbidden());
-        }
+    }
 
     @Test
     @DisplayName("Atualizar produto")
@@ -277,7 +272,6 @@ public class ProductControllerTests {
                 "    \"preco_sugerido\":3.55\n" +
                 "}";
 
-        //executando controller com o token
         MvcResult resultPut = mockMvc.perform(MockMvcRequestBuilders.put("/product/{id_produto}", 1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
@@ -322,7 +316,6 @@ public class ProductControllerTests {
                 "    \"preco_sugerido\":10.55\n" +
                 "}";
 
-        //executando controller com o token
         MvcResult resultPatch = mockMvc.perform(MockMvcRequestBuilders.patch("/product/{id_produto}", 1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
