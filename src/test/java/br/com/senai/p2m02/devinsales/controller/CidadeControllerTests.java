@@ -67,19 +67,20 @@ public class CidadeControllerTests {
         cidade.setNome("Rio Branco");
         cidade.setEstado(estado);
 
-        when(service.listar(estado.getNome(), estado.getId())).thenReturn((List<CidadeEntity>) cidade);
+        when(service.listar(cidade.getNome(), estado.getId())).thenReturn((List.of(cidade)));
 
         //executando controller com o token
         MvcResult resultGet = mockMvc
                 .perform(MockMvcRequestBuilders.get("/state/{id_estado}/city",1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
+                        .param("nome", cidade.getNome())
                 )
                 .andExpect(status().isOk())
                 .andReturn();
         String responseGet = resultGet.getResponse().getContentAsString();
         Assertions.assertNotEquals(responseGet, "");
-        Assertions.assertEquals("{\"id\":1,\"nome\":\"Rio Branco\",\"estado\":{\"id\":1,\"nome\":\"Acre\",\"sigla\":\"AC\"}}", responseGet);
+        Assertions.assertEquals("[{\"id\":1,\"nome\":\"Rio Branco\",\"estado\":{\"id\":1,\"nome\":\"Acre\",\"sigla\":\"AC\"}}]", responseGet);
     }
 
     @Test
@@ -113,12 +114,13 @@ public class CidadeControllerTests {
         cidade.setNome("Rio Branco");
         cidade.setEstado(estado);
 
-        when(service.listar(estado.getNome(), estado.getId())).thenReturn((List<CidadeEntity>) cidade);
+        when(service.listar(cidade.getNome(), estado.getId())).thenReturn((List.of(cidade)));
 
         //executando controller com o token
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_estado}/city",1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
+                        .param("nome", cidade.getNome())
                 )
                 .andExpect(status().isForbidden());
 
