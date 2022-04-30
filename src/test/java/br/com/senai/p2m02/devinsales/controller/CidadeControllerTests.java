@@ -36,6 +36,95 @@ public class CidadeControllerTests {
     CidadeEntityService service;
 
     @Test
+    @DisplayName("Listar Cidades Por Estado Com Autorização")
+    public void deveListarCidadesPorEstadoQuandoForAutorizado() throws Exception {
+
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body)
+                )
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Acre");
+        estado.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Rio Branco");
+        cidade.setEstado(estado);
+
+        when(service.listar(estado.getNome(), estado.getId())).thenReturn((List<CidadeEntity>) cidade);
+
+        //executando controller com o token
+        MvcResult resultGet = mockMvc
+                .perform(MockMvcRequestBuilders.get("/state/{id_estado}/city",1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+        String responseGet = resultGet.getResponse().getContentAsString();
+        Assertions.assertNotEquals(responseGet, "");
+        Assertions.assertEquals("{\"id\":1,\"nome\":\"Rio Branco\",\"estado\":{\"id\":1,\"nome\":\"Acre\",\"sigla\":\"AC\"}}", responseGet);
+    }
+
+    @Test
+    @DisplayName("Não Listar Cidades Por Estado Sem Autorização")
+    public void naoDeveListarCidadesPorEstadoQuandoNaoForAutorizado() throws Exception {
+
+        // gerando o token
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estado = new EstadoEntity();
+        estado.setId(1L);
+        estado.setNome("Acre");
+        estado.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidade = new CidadeEntity();
+        cidade.setId(1L);
+        cidade.setNome("Rio Branco");
+        cidade.setEstado(estado);
+
+        when(service.listar(estado.getNome(), estado.getId())).thenReturn((List<CidadeEntity>) cidade);
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_estado}/city",1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isForbidden());
+
+    }
+
+    @Test
     @DisplayName("Listar Cidade Por ID Autorizado ")
     public void deveListarCidadePorIdQuandoForAutorizado() throws Exception {
         // gerando o token
