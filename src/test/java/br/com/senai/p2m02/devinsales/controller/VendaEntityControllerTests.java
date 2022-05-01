@@ -2,14 +2,17 @@ package br.com.senai.p2m02.devinsales.controller;
 
 import br.com.senai.p2m02.devinsales.model.ItemVendaEntity;
 import br.com.senai.p2m02.devinsales.model.ProductEntity;
+import br.com.senai.p2m02.devinsales.model.UserEntity;
 import br.com.senai.p2m02.devinsales.model.VendaEntity;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import br.com.senai.p2m02.devinsales.service.ItemVendaEntityService;
 import br.com.senai.p2m02.devinsales.service.VendaEntityService;
 import jakarta.persistence.EntityNotFoundException;
 
+import org.apache.catalina.User;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +28,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +64,9 @@ public class VendaEntityControllerTests {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private UserEntityRepository userEntityRepository;
 
 
     @Test
@@ -332,4 +341,51 @@ public class VendaEntityControllerTests {
                 )
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("Cria nova venda quando o usuario estiver autenticado")
+    public void deveCriarUmaVendaComIdUserQuandoAutenticado() throws Exception {
+        //gerando token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json")
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+        Assertions.assertNotNull(token);
+
+        UserEntity vendedor = new UserEntity();
+        vendedor.setId(2l);
+
+        UserEntity user = new UserEntity();
+        user.setId(3l);
+
+        VendaEntity vendaEntity = new VendaEntity();
+        vendaEntity.setId(1l);
+        vendaEntity.setDataVenda(LocalDateTime.now());
+        vendaEntity.setComprador(null);
+        vendaEntity.setVendedor(vendedor);
+
+        when(vendaEntityService.salvarBuy(1l, vendaEntity)).thenReturn(1l);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+
+        String bodyRequisicao = "{\n" + "    \"idVendedor\":{\"id\":2}\n" +
+                "}";
+
+        //executando controller com o token
+        MvcResult resultPost = mockMvc.perform(MockMvcRequestBuilders.post("/user/{id_user}/buy", 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                        .content(bodyRequisicao)
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+
+
 }
