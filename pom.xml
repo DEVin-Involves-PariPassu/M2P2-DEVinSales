@@ -95,7 +95,7 @@
                 <executions>
                     <execution>
                         <id>my-execution</id>
-                        <phase>package</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
