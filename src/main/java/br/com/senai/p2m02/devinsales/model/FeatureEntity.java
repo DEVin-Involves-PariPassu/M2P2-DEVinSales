@@ -1,10 +1,6 @@
 package br.com.senai.p2m02.devinsales.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Set;
 
 @Entity(name = "feature")
 public class FeatureEntity {
@@ -16,6 +12,9 @@ public class FeatureEntity {
 
     @Column(name = "nome_feature")
     private String nomeFeature;
+
+    public FeatureEntity() {
+    }
 
     public Long getId() {
         return id;
