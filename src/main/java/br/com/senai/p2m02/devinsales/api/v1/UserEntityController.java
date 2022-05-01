@@ -95,9 +95,6 @@ public class UserEntityController {
                 .orElseThrow(
                         ()-> new IllegalArgumentException()
                 );
-        if( !loggedUser.canWrite("usuario") ) {
-            return true;
-        }
-        return false;
+        return !loggedUser.canWrite("usuario");
     }
 }
