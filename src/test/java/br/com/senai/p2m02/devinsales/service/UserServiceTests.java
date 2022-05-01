@@ -183,6 +183,20 @@ public class UserServiceTests {
     }
 
     @Test
+    @DisplayName("Não deve atualizar usuário se o nome já existir")
+    public void naoDeveAtualizarUsuarioSeONomeJaExistir(){
+
+        when(userEntityRepository.findUserEntityByNome(userDTO.getNome())).thenReturn(Optional.of(userEntity));
+        when(userEntityRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+
+        assertThrows(EntityExistsException.class, () -> {
+            userEntityService.atualizar(1L,userDTO);
+        });
+
+        verify(this.userEntityRepository, times(2)).findUserEntityByNome(userDTO.getNome());
+    }
+
+    @Test
     @DisplayName("Não deve salvar um usuário sem ao menos uma feature")
     public void naoDeveSalvarUsuarioSemAoMenosUmaFeature(){
 
@@ -223,4 +237,29 @@ public class UserServiceTests {
 
     }
 
+    @Test
+    @DisplayName("Atualizar usuário")
+    public void deveAtualizarUsuarioQuandoPassarNovosDadosEIdValido(){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+
+        try{
+            userEntityService.atualizar(ID, userDTO);
+        } catch (Exception ex){
+            assertEquals(EntityNotFoundException.class, ex.getClass());
+            assertEquals("Id de usuário inexistente.", ex.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Não atualizar usuário se Id não existir")
+    public void deveLancarExcecaoQuandoTentarAtualizarUsuarioInexistente(){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+
+        try{
+            userEntityService.atualizar(2L, userDTO);
+        } catch (Exception ex){
+            assertEquals(EntityNotFoundException.class, ex.getClass());
+            assertEquals("Id de usuário inexistente.", ex.getMessage());
+        }
+    }
 }
