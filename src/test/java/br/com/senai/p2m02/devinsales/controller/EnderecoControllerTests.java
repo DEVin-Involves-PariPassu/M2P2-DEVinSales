@@ -1,6 +1,5 @@
 package br.com.senai.p2m02.devinsales.controller;
 
-import br.com.senai.p2m02.devinsales.dto.CidadeDTO;
 import br.com.senai.p2m02.devinsales.dto.EnderecoDTO;
 import br.com.senai.p2m02.devinsales.model.CidadeEntity;
 import br.com.senai.p2m02.devinsales.model.EnderecoEntity;
@@ -9,6 +8,7 @@ import br.com.senai.p2m02.devinsales.model.SiglaEstado;
 import br.com.senai.p2m02.devinsales.service.EnderecoEntityService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Disabled
 @SpringBootTest
 @AutoConfigureMockMvc
 public class EnderecoControllerTests {
@@ -35,7 +36,7 @@ public class EnderecoControllerTests {
     MockMvc mockMvc;
 
     @MockBean
-    EnderecoEntityService service;
+    EnderecoEntityService enderecoEntityService;
 
     @Test
     @DisplayName("Listar Endereços por ID Autorizado")
@@ -70,7 +71,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(service.listarPorId (
+        when(enderecoEntityService.listarPorId (
                 1L,
                 1L,
                 1L)).thenReturn(endereco);
@@ -111,7 +112,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}","a",1L,1L)
                         .header("Authorization", "Bearer " + token)
@@ -142,7 +143,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,"a",1L)
@@ -174,7 +175,7 @@ public class EnderecoControllerTests {
 
         EnderecoEntity endereco = new EnderecoEntity();
 
-        when(service.listarPorId(1L, 1L,1L)).thenReturn(endereco);
+        when(enderecoEntityService.listarPorId(1L, 1L,1L)).thenReturn(endereco);
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L,1L,"a")
@@ -217,7 +218,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(service.listarPorId (
+        when(enderecoEntityService.listarPorId (
                 1L,
                 1L,
                 1L)).thenReturn(endereco);
@@ -265,7 +266,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(service.listar (
+        when(enderecoEntityService.listar (
                 1L,
                 1L,
                 "Rua Principal",
@@ -328,7 +329,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(service.listar(
+        when(enderecoEntityService.listar(
                 2L,
                 2L,
                 "Rua Principal",
@@ -382,7 +383,7 @@ public class EnderecoControllerTests {
         endereco.setCidade(cidade);
         endereco.setComplemento("Primavera Garden");
 
-        when(service.listar(
+        when(enderecoEntityService.listar(
                 2L,
                 2L,
                 "Rua Principal",
@@ -434,7 +435,7 @@ public class EnderecoControllerTests {
         endereco.setComplemento("Primavera Garden");
         endereco.setCidade(cidade);
 
-        when(service.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
+        when(enderecoEntityService.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
 
         String bodyRequisicao = "{\"rua\":\"Rua Principal\"," +
                 "\"numero\":123,\"complemento\":\"Primavera Garden\"," +
@@ -489,7 +490,7 @@ public class EnderecoControllerTests {
         endereco.setComplemento("Primavera Garden");
         endereco.setCidade(cidade);
 
-        when(service.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
+        when(enderecoEntityService.salvar(any(EnderecoDTO.class), eq(cidade.getId()), eq(estado.getId()))).thenReturn(1L);
 
         String bodyRequisicao = "{\"rua\":\"Rua Principal\"," +
                 "\"numero\":123,\"complemento\":\"Primavera Garden\"," +
