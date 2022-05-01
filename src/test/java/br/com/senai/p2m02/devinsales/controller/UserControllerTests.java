@@ -109,7 +109,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("Deletar usuário pelo Id")
-    public void deveDeletarUsuarioQuandoInformarOId() throws Exception{
+    public void deveDeletarUsuarioQuandoInformarId() throws Exception{
         String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
 
         MvcResult result = mockMvc
@@ -134,6 +134,35 @@ public class UserControllerTests {
                 .andExpect(status().isNoContent())
                 .andReturn();
     }
+
+    @Test
+    @DisplayName("Não deletar usuário quando não estiver autenticado")
+    public void naoDeveDeletarUsuarioQuandoNaoForAutenticado() throws Exception{
+        String body = "{\"login\":\"silvia\",\"senha\":\"silvia123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+
+        doNothing().when(service).delete(userEntity.getId());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/user/{id_user}", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                )
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
     @Test
     @DisplayName("Quando atualizar usuário retornar usuário atualizado")
     public void quandoAtualizarUsuario_retornarUsuarioAtualizado() throws Exception{
