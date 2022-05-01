@@ -34,7 +34,7 @@ public class UserEntityService {
     public List<UserEntity> listar(String nome, String dtNascimentoMinStr, String dtNascimentoMaxStr) {
         LocalDate dtNascimentoMin = verificationDate(dtNascimentoMinStr);
         LocalDate dtNascimentoMax = verificationDate(dtNascimentoMaxStr);
-        return userEntityRepository.findAll(
+        return this.userEntityRepository.findAll(
                 Specification.where(
                         SpecificationsUserEntity.nome(nome).and(
                                 SpecificationsUserEntity.dtNascimentoMin(dtNascimentoMin).and(
@@ -46,15 +46,15 @@ public class UserEntityService {
     }
 
     public void patchPermissao(Long idUser, String nomeFeature, String tipoPermissao) {
-        UserEntity userEntity = userEntityRepository.findById(idUser).orElseThrow(() ->
+        UserEntity userEntity = this.userEntityRepository.findById(idUser).orElseThrow(() ->
                 new EntityNotFoundException("Usuário não encontrado."));
 
-        FeatureEntity featureEntity = featureEntityRepository.findFirstByNomeFeature(nomeFeature).orElseThrow(() ->
+        FeatureEntity featureEntity = this.featureEntityRepository.findFirstByNomeFeature(nomeFeature).orElseThrow(() ->
                 new EntityNotFoundException("Feature não encontrada."));
 
         UserFeatureId idUserFeature = new UserFeatureId(userEntity.getId(), featureEntity.getId());
 
-        Optional<UserFeatureEntity> optionalUserFeature = userFeatureEntityRepository.findById(idUserFeature);
+        Optional<UserFeatureEntity> optionalUserFeature = this.userFeatureEntityRepository.findById(idUserFeature);
         UserFeatureEntity userFeatureEntity;
 
         if (optionalUserFeature.isEmpty()) {
@@ -79,19 +79,19 @@ public class UserEntityService {
         } else {
             throw new IllegalArgumentException("A permissão é ínválida.");
         }
-        userFeatureEntityRepository.save(userFeatureEntity);
+        this.userFeatureEntityRepository.save(userFeatureEntity);
     }
 
     public Long salvar(UserDTO user) {
         UserEntity newUser = validateUser(user);
-        userEntityRepository.save(newUser);
+        this.userEntityRepository.save(newUser);
         return newUser.getId();
     }
 
     public void atualizar(Long idUser, UserDTO userDTO) {
         UserEntity user = updateUser(idUser, userDTO);
 
-        userEntityRepository.save(user);
+        this.userEntityRepository.save(user);
     }
 
     public UserEntity updateUser(Long idUser, UserDTO userDTO) {
@@ -100,7 +100,7 @@ public class UserEntityService {
         LocalDate dtNascimento = verificationDate(userDTO);
         verificationAge(dtNascimento);
 
-        UserEntity user = userEntityRepository.findById(idUser).orElseThrow(
+        UserEntity user = this.userEntityRepository.findById(idUser).orElseThrow(
                 () -> new EntityNotFoundException("Id de usuário inexistente.")
         );
         user.setLogin(userDTO.getLogin());
@@ -130,14 +130,15 @@ public class UserEntityService {
         newUser.setSenha(encoder.encode(user.getSenha()));
         newUser.setNome(user.getNome());
         newUser.setDtNascimento(userAge);
-        newUser = userEntityRepository.save(newUser);
+
         Set<UserFeatureEntity> userFeatureEntities = validateFeatures(newUser, user);
         newUser.setUserFeatureEntities(userFeatureEntities);
+        this.userEntityRepository.save(newUser);
         return newUser;
     }
 
     private void existsNome(UserDTO user) {
-        if (user.getNome() == null) {
+        if (user.getNome().isBlank()) {
             throw new RequiredFieldMissingException("O campo Nome é obrigatório");
         }
     }
@@ -170,9 +171,8 @@ public class UserEntityService {
 
     private LocalDate verificationDate(UserDTO userDTO) throws DateTimeParseException {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dtNascimento = LocalDate.parse(userDTO.getDtNascimento(), dateTimeFormatter);
 
-        return dtNascimento;
+        return LocalDate.parse(userDTO.getDtNascimento(), dateTimeFormatter);
     }
 
     private LocalDate verificationDate(String dtNascimentoStr) throws DateTimeParseException {
@@ -180,20 +180,19 @@ public class UserEntityService {
             return null;
         }
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dtNascimento = LocalDate.parse(dtNascimentoStr, dateTimeFormatter);
 
-        return dtNascimento;
+        return LocalDate.parse(dtNascimentoStr, dateTimeFormatter);
     }
 
     private void isUniqueLoginUser(UserDTO user) {
-        Optional<UserEntity> optionalUser = userEntityRepository.findUserEntityByLogin(user.getLogin());
+        Optional<UserEntity> optionalUser = this.userEntityRepository.findUserEntityByLogin(user.getLogin());
         if (optionalUser.isPresent()) {
             throw new EntityExistsException("Já existe um usuário cadastrado com este login: " + user.getLogin());
         }
     }
 
     private void isUniqueNameUser(UserDTO user) {
-        Optional<UserEntity> optionalUser = userEntityRepository.findUserEntityByNome(user.getNome());
+        Optional<UserEntity> optionalUser = this.userEntityRepository.findUserEntityByNome(user.getNome());
         if (optionalUser.isPresent()) {
             throw new EntityExistsException("Já existe este nome de usuário cadastrado: " + user.getNome());
         }
@@ -228,36 +227,35 @@ public class UserEntityService {
                 existeUmaFeature = true;
             }
             if(existeUmaFeature) {
-                userFeatureEntity = userFeatureEntityRepository.save(userFeatureEntity);
+                userFeatureEntity = this.userFeatureEntityRepository.save(userFeatureEntity);
                 userFeatureEntities.add(userFeatureEntity);
             }
 
         }
         if (!existeUmaFeature) {
-            userEntityRepository.delete(userEntity);
+            this.userEntityRepository.delete(userEntity);
             throw new IllegalArgumentException("O usuário deve possuir ao menos uma permissão.");
         }
         return userFeatureEntities;
     }
 
     private FeatureEntity existsFeature(FeatureDTO feature) {
-        FeatureEntity featureEntity = featureEntityRepository.findFirstByNomeFeature(feature.getFeature()).orElseThrow(
+        return this.featureEntityRepository.findFirstByNomeFeature(feature.getFeature()).orElseThrow(
                 () -> new IllegalArgumentException("Não existe feature com o nome " + feature.getFeature())
         );
-        return featureEntity;
     }
 
     @Transactional
     public void delete(Long id){
-       UserEntity userEntity = userEntityRepository.findById(id).orElseThrow(
-               () -> new EntityNotFoundException("User with id " + id + " was not found."));
+        UserEntity userEntity = this.userEntityRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + id + " was not found."));
 
-       userEntityRepository.delete(userEntity);
+        this.userEntityRepository.delete(userEntity);
     }
 
     @Transactional
     public UserEntity findById(Long id){
-        return userEntityRepository.findUserEntityById(id).orElseThrow(
+        return this.userEntityRepository.findUserEntityById(id).orElseThrow(
                 () -> new EntityNotFoundException("User with id " + id + " was not found." )
         );
     }
