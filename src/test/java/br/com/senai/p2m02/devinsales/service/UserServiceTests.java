@@ -191,7 +191,7 @@ public class UserServiceTests {
             userEntityService.atualizar(1L,userDTO);
         });
 
-        verify(this.userEntityRepository, times(2)).findUserEntityByNome(userDTO.getNome());
+        verify(this.userEntityRepository, times(1)).findUserEntityByNome(userDTO.getNome());
     }
 
     @Test
