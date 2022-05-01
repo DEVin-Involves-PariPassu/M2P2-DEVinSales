@@ -386,6 +386,44 @@ public class VendaEntityControllerTests {
                 .andReturn();
     }
 
+    @Test
+    @DisplayName("Buscar venda com idVendedor")
+    public void deveBuscarVendasComIdVendedorIgualIdUser() throws Exception {
+
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json")
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+        Assertions.assertNotNull(token);
+
+        ProductEntity productEntity1 = new ProductEntity();
+        productEntity1.setId(1);
+
+
+        VendaEntity vendaEntity = new VendaEntity();
+        vendaEntity.setId(1l);
+        vendaEntity.setDataVenda(LocalDateTime.now());
+        vendaEntity.setComprador(null);
+        vendaEntity.setVendedor(null);
+
+        List<VendaEntity> list = List.of(vendaEntity);
+
+        when(vendaEntityService.listarVendas(1l)).thenReturn(list);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/{id_user}/sales", 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+
 
 
 }
