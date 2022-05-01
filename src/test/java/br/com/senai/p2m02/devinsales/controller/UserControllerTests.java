@@ -134,6 +134,94 @@ public class UserControllerTests {
                 .andExpect(status().isNoContent())
                 .andReturn();
     }
+    @Test
+    @DisplayName("Quando atualizar usuário retornar usuário atualizado")
+    public void quandoAtualizarUsuario_retornarUsuarioAtualizado() throws Exception{
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        doNothing().when(service).atualizar(userEntity.getId(), userDTO);
+
+        String userJson = """
+                {
+                "nome": "Camilla Amaral",
+                "login": "amaralcamilla",
+                "senha": "cami000",
+                "dtNascimento": "28/12/1988",
+                "features":
+                [
+                    {
+                    "feature": "product",
+                    "read": true,
+                    "write": true
+                    }
+                ]
+                }
+                """;
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/{id_user}", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(userJson))
+                .andExpect(status().isNoContent())
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Não deve atualizar quando usuário não possuir feature write")
+    public void naoDeveAtualizarQuandoUsuarioNaoPossuirFeatureWrite() throws Exception{
+        String body = "{\"login\":\"silvia\",\"senha\":\"silvia123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        doNothing().when(service).atualizar(userEntity.getId(), userDTO);
+
+        String userJson = """
+                {
+                "nome": "Camilla Amaral",
+                "login": "amaralcamilla",
+                "senha": "cami000",
+                "dtNascimento": "28/12/1988",
+                "features":
+                [
+                    {
+                    "feature": "usuario",
+                    "read": true,
+                    "write": false
+                    }
+                ]
+                }
+                """;
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/{id_user}", 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .content(userJson))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
 
 
 }
