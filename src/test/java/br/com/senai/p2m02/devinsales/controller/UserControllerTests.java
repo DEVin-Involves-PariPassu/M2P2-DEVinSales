@@ -1,13 +1,8 @@
 package br.com.senai.p2m02.devinsales.controller;
 
-import br.com.senai.p2m02.devinsales.api.v1.AutenticacaoController;
-import br.com.senai.p2m02.devinsales.configuration.AutenticacaoService;
-import br.com.senai.p2m02.devinsales.configuration.TokenService;
 import br.com.senai.p2m02.devinsales.dto.FeatureDTO;
-import br.com.senai.p2m02.devinsales.dto.LoginDTO;
 import br.com.senai.p2m02.devinsales.dto.UserDTO;
 import br.com.senai.p2m02.devinsales.model.*;
-import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.service.UserEntityService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -21,17 +16,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -74,7 +63,6 @@ public class UserControllerTests {
         featureDTO.setWrite(true);
         featuresList.add(0, featureDTO);
 
-        //Cria UserDTO que será usado para criar o usuário
         userDTO = new UserDTO();
         userDTO.setNome(NOME);
         userDTO.setSenha(SENHA);
@@ -104,7 +92,6 @@ public class UserControllerTests {
         userFeatureEntity.setId(userFeatureId);
 
         userEntity.setUserFeatureEntities(Set.of(userFeatureEntity));
-
     }
 
     @Test
@@ -303,5 +290,35 @@ public class UserControllerTests {
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
+  
+    @Test
+    public void givenUserObject_whenPostUser_thenReturnUserSave() throws Exception{
 
+        //when(this.service.salvar(any(UserDTO.class))).thenReturn(anyLong());
+        when(service.salvar(userDTO)).thenReturn(1L);
+
+        String userJson = """
+                {
+                "nome": "Kalyana Greim",
+                "login": "kalyana",
+                "senha": "kaly123",
+                "dtNascimento": "12/10/1997",
+                "features":
+                [
+                    {
+                    "feature": "product",
+                    "read": true,
+                    "write": true
+                    }
+                ]
+                }
+                """;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user")
+                        .header("Content-Type", "application/json")
+                        .content(userJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+    }
 }
