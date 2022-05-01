@@ -222,6 +222,31 @@ public class UserControllerTests {
                 .andReturn();
     }
 
+    @Test
+    @DisplayName("Deve atualizar permissão e retornar noContent")
+    public void deveAtualizarPermissaoERetornarNoContent() throws Exception{
 
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        doNothing().when(service).patchPermissao(userEntity.getId(), "product", "read");
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/user/{id_user}/feature/{nome_feature}/permissao/{tipo_permissao}", 1L, "product", "read")
+                        .header("Authorization", "Bearer " + token)
+                )
+                .andExpect(status().isNoContent())
+                .andReturn();
+    }
 
 }
