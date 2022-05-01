@@ -1,7 +1,10 @@
 package br.com.senai.p2m02.devinsales.dto;
 
+import lombok.AllArgsConstructor;
+
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+
 
 public class UserDTO {
 
@@ -19,6 +22,9 @@ public class UserDTO {
 
     @NotBlank
     private List<FeatureDTO> features;
+
+    public UserDTO() {
+    }
 
     public String getLogin() {
         return login;

@@ -25,6 +25,17 @@ public class UserFeatureEntity implements Serializable, GrantedAuthority {
     private Boolean read;
     private Boolean write;
 
+    public UserFeatureEntity(UserFeatureId id, UserEntity user, FeatureEntity feature, Boolean read, Boolean write) {
+        this.id = id;
+        this.user = user;
+        this.feature = feature;
+        this.read = read;
+        this.write = write;
+    }
+
+    public UserFeatureEntity() {
+    }
+
     public UserFeatureId getId() {
         return id;
     }
