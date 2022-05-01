@@ -16,15 +16,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class UserServiceTests {
@@ -45,6 +42,8 @@ public class UserServiceTests {
     private FeatureDTO featureDTO;
     private UserEntity userEntity;
     private FeatureEntity featureEntity;
+    private UserFeatureId userFeatureId;
+    private UserFeatureEntity userFeatureEntity;
 
     @BeforeEach
     public void setup(){
@@ -91,7 +90,6 @@ public class UserServiceTests {
         featureEntity.setNomeFeature("product");
 
         UserFeatureId userFeatureId = new UserFeatureId(ID, featureEntity.getId());
-
 
         UserFeatureEntity userFeatureEntity = new UserFeatureEntity();
         userFeatureEntity.setUser(userEntity);
@@ -183,6 +181,20 @@ public class UserServiceTests {
     }
 
     @Test
+    @DisplayName("Não deve atualizar usuário se o nome já existir")
+    public void naoDeveAtualizarUsuarioSeONomeJaExistir(){
+
+        when(userEntityRepository.findUserEntityByNome(userDTO.getNome())).thenReturn(Optional.of(userEntity));
+        when(userEntityRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+
+        assertThrows(EntityExistsException.class, () -> {
+            userEntityService.atualizar(1L,userDTO);
+        });
+
+        verify(this.userEntityRepository, times(2)).findUserEntityByNome(userDTO.getNome());
+    }
+
+    @Test
     @DisplayName("Não deve salvar um usuário sem ao menos uma feature")
     public void naoDeveSalvarUsuarioSemAoMenosUmaFeature(){
 
@@ -221,6 +233,122 @@ public class UserServiceTests {
 
         assertThrows(EntityNotFoundException.class, () -> userEntityService.findById(2L));
 
+    }
+
+    @Test
+    @DisplayName("Atualizar usuário")
+    public void deveAtualizarUsuarioQuandoPassarNovosDadosEIdValido(){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+
+        try{
+            userEntityService.atualizar(ID, userDTO);
+        } catch (Exception ex){
+            assertEquals(EntityNotFoundException.class, ex.getClass());
+            assertEquals("Id de usuário inexistente.", ex.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Não atualizar usuário se Id não existir")
+    public void deveLancarExcecaoQuandoTentarAtualizarUsuarioInexistente(){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+
+        try{
+            userEntityService.atualizar(2L, userDTO);
+        } catch (Exception ex){
+            assertEquals(EntityNotFoundException.class, ex.getClass());
+            assertEquals("Id de usuário inexistente.", ex.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Deve atualizar permissão com permissão read")
+    public void deveAtualizarPermissaoComPermissaoRead (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+        when(featureEntityRepository.findFirstByNomeFeature(featureEntity.getNomeFeature())).thenReturn(Optional.of(featureEntity));
+        when(userFeatureEntityRepository.findById(any())).thenReturn(Optional.empty());
+        when(userFeatureEntityRepository.save(any())).thenReturn(userFeatureEntity);
+
+        userEntityService.patchPermissao(ID, "product", "read");
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+        verify(this.featureEntityRepository, times(1)).findFirstByNomeFeature(featureEntity.getNomeFeature());
+        verify(this.userFeatureEntityRepository, times(1)).findById(any());
+        verify(this.userFeatureEntityRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar permissão com permissão write")
+    public void deveAtualizarPermissaoComPermissaoWrite (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+        when(featureEntityRepository.findFirstByNomeFeature(featureEntity.getNomeFeature())).thenReturn(Optional.of(featureEntity));
+        when(userFeatureEntityRepository.findById(any())).thenReturn(Optional.empty());
+        when(userFeatureEntityRepository.save(any())).thenReturn(userFeatureEntity);
+
+        userEntityService.patchPermissao(ID, "product", "write");
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+        verify(this.featureEntityRepository, times(1)).findFirstByNomeFeature(featureEntity.getNomeFeature());
+        verify(this.userFeatureEntityRepository, times(1)).findById(any());
+        verify(this.userFeatureEntityRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar permissão com permissão readwrite")
+    public void deveAtualizarPermissaoComPermissaoReadWrite (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+        when(featureEntityRepository.findFirstByNomeFeature(featureEntity.getNomeFeature())).thenReturn(Optional.of(featureEntity));
+        when(userFeatureEntityRepository.findById(any())).thenReturn(Optional.empty());
+        when(userFeatureEntityRepository.save(any())).thenReturn(userFeatureEntity);
+
+        userEntityService.patchPermissao(ID, "product", "readwrite");
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+        verify(this.featureEntityRepository, times(1)).findFirstByNomeFeature(featureEntity.getNomeFeature());
+        verify(this.userFeatureEntityRepository, times(1)).findById(any());
+        verify(this.userFeatureEntityRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Não deve atualizar permissão com usuário inexistente")
+    public void naoDeveAtualizarPermissaoComUsuarioInexistente (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            userEntityService.patchPermissao(ID, "product", "read");
+        });
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+    }
+
+    @Test
+    @DisplayName("Não deve atualizar permissão com permissão inexistente")
+    public void naoDeveAtualizarPermissaoComPermissaoInexistente (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+        when(featureEntityRepository.findFirstByNomeFeature(featureEntity.getNomeFeature())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            userEntityService.patchPermissao(ID, "product", "read");
+        });
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+        verify(this.featureEntityRepository, times(1)).findFirstByNomeFeature(featureEntity.getNomeFeature());
+    }
+
+    @Test
+    @DisplayName("Tipo de permissão inexistente")
+    public void quandoTipoDePermissaoForInexistente (){
+        when(userEntityRepository.findById(ID)).thenReturn(Optional.of(userEntity));
+        when(featureEntityRepository.findFirstByNomeFeature(featureEntity.getNomeFeature())).thenReturn(Optional.of(featureEntity));
+        when(userFeatureEntityRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            userEntityService.patchPermissao(ID, "product", "udjfhf");
+        });
+
+        verify(this.userEntityRepository, times(1)).findById(ID);
+        verify(this.featureEntityRepository, times(1)).findFirstByNomeFeature(featureEntity.getNomeFeature());
+        verify(this.userFeatureEntityRepository, times(1)).findById(any());
     }
 
 }
