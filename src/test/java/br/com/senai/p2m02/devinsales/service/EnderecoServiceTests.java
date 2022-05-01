@@ -705,4 +705,38 @@ public class EnderecoServiceTests {
 
         verify(this.enderecoEntityRepository, times(1)).findById(2L);
     }
+
+    @Test
+    @DisplayName("Deleta endereço por id válido")
+    public void deveDeletarEnderecoQuandoIdForValido(){
+
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        EnderecoEntity enderecoEntity = new EnderecoEntity();
+        enderecoEntity.setId(1L);
+        enderecoEntity.setRua("Rua Ipanema");
+        enderecoEntity.setNumero(10);
+        enderecoEntity.setComplemento("Casa");
+        enderecoEntity.setCidade(cidadeEntity);
+
+        when(estadoEntityRepository.findById(estadoEntity.getId())).thenReturn(Optional.of(estadoEntity));
+        when(cidadeEntityRepository.findById(cidadeEntity.getId())).thenReturn(Optional.of(cidadeEntity));
+        when(enderecoEntityRepository.findById(enderecoEntity.getId())).thenReturn(Optional.of(enderecoEntity));
+        doNothing().when(enderecoEntityRepository).delete(enderecoEntity);
+        service.deletar(estadoEntity.getId(), cidadeEntity.getId(),enderecoEntity.getId());
+
+
+        verify(this.estadoEntityRepository, times(1)).findById(estadoEntity.getId());
+        verify(this.cidadeEntityRepository, times(1)).findById(cidadeEntity.getId());
+        verify(this.enderecoEntityRepository, times(1)).delete(enderecoEntity);
+    }
+
 }
