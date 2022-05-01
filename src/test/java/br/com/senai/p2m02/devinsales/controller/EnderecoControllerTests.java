@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,7 +77,7 @@ public class EnderecoControllerTests {
                 1L,
                 1L)).thenReturn(endereco);
 
-        MvcResult resultGet = mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1l)
+        MvcResult resultGet = mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
                 )
@@ -223,7 +224,7 @@ public class EnderecoControllerTests {
                 1L,
                 1L)).thenReturn(endereco);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1l)
+        mockMvc.perform(MockMvcRequestBuilders.get("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1L)
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json" )
                 )
@@ -504,5 +505,99 @@ public class EnderecoControllerTests {
                         .content(bodyRequisicao)
         ).andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("Deletar endereço com autorização")
+    public void deveDeletarEnderecoQuandoForAutorizado() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        EnderecoEntity enderecoEntity = new EnderecoEntity();
+        enderecoEntity.setId(1L);
+        enderecoEntity.setRua("Rua Ipanema");
+        enderecoEntity.setNumero(10);
+        enderecoEntity.setComplemento("Casa");
+        enderecoEntity.setCidade(cidadeEntity);
+
+        doNothing().when(enderecoEntityService).deletar(estadoEntity.getId(), cidadeEntity.getId(),enderecoEntity.getId());
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.delete("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .param("nome", "Acre")
+                )
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Não deletar endereço sem autorização")
+    public void naoDeveDeletarEnderecoQuandoNaoForAutorizado() throws Exception {
+        // gerando o token
+        String body = "{\"login\":\"camilla\",\"senha\":\"camilla123\"}";
+
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json" )
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        // extraindo o token
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+
+        Assertions.assertNotNull(token);
+
+        EstadoEntity estadoEntity = new EstadoEntity();
+        estadoEntity.setId(1L);
+        estadoEntity.setNome("Acre");
+        estadoEntity.setSigla(SiglaEstado.AC);
+
+        CidadeEntity cidadeEntity = new CidadeEntity();
+        cidadeEntity.setId(1L);
+        cidadeEntity.setNome("Rio Branco");
+        cidadeEntity.setEstado(estadoEntity);
+
+        EnderecoEntity enderecoEntity = new EnderecoEntity();
+        enderecoEntity.setId(1L);
+        enderecoEntity.setRua("Rua Ipanema");
+        enderecoEntity.setNumero(10);
+        enderecoEntity.setComplemento("Casa");
+        enderecoEntity.setCidade(cidadeEntity);
+
+        doNothing().when(enderecoEntityService).deletar(estadoEntity.getId(), cidadeEntity.getId(),enderecoEntity.getId());
+
+        //executando controller com o token
+        mockMvc.perform(MockMvcRequestBuilders.delete("/state/{id_state}/city/{id_city}/address/{id_address}",1L, 1L, 1L)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json" )
+                        .param("nome", "Acre")
+                )
+                .andExpect(status().isForbidden());
+    }
+
 }
 

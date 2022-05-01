@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.util.*;
 
+
 @Entity(name = "usuario")
 public class UserEntity implements UserDetails {
 
@@ -24,7 +25,27 @@ public class UserEntity implements UserDetails {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserFeatureEntity> userFeatureEntities;
 
-//    @ManyToMany(fetch = FetchType.EAGER)
+    public UserEntity(Long id, String login, String senha, String nome, LocalDate dtNascimento) {
+        this.id = id;
+        this.login = login;
+        this.senha = senha;
+        this.nome = nome;
+        this.dtNascimento = dtNascimento;
+    }
+
+    public UserEntity() {
+    }
+
+    public UserEntity(Long id, String login, String senha, String nome, LocalDate dtNascimento, Set<UserFeatureEntity> userFeatureEntities) {
+        this.id = id;
+        this.login = login;
+        this.senha = senha;
+        this.nome = nome;
+        this.dtNascimento = dtNascimento;
+        this.userFeatureEntities = userFeatureEntities;
+    }
+
+    //    @ManyToMany(fetch = FetchType.EAGER)
 //    public Set<FeatureEntity> features = new HashSet<>();
 
     public Long getId() {
@@ -77,14 +98,6 @@ public class UserEntity implements UserDetails {
         this.userFeatureEntities = userFeatureEntities;
     }
 
-//    public Set<FeatureEntity> getFeatures() {
-//        return features;
-//    }
-//
-//    public void setFeatures(Set<FeatureEntity> features) {
-//        this.features = features;
-//    }
-
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -96,7 +109,7 @@ public class UserEntity implements UserDetails {
                 '}';
     }
 
-   public boolean canRead(String feature) {
+    public boolean canRead(String feature) {
         Optional<UserFeatureEntity> featureInfo = getFeatureInfo(feature);
         if (featureInfo.isEmpty())
             return false;
