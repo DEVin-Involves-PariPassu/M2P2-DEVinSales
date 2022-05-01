@@ -4,4 +4,4 @@ WORKDIR /build
 COPY pom.xml /build
 RUN mvn -B dependency:resolve dependency:resolve-plugins
 COPY src /build/src
-RUN mvn package
+RUN mvn spring-boot:run
