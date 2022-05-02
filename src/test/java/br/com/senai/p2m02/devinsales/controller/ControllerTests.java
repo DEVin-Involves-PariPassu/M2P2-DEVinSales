@@ -4,6 +4,7 @@ import br.com.senai.p2m02.devinsales.dto.*;
 import br.com.senai.p2m02.devinsales.model.*;
 import br.com.senai.p2m02.devinsales.repository.ItemVendaEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.ProductRepository;
+import br.com.senai.p2m02.devinsales.repository.UserEntityRepository;
 import br.com.senai.p2m02.devinsales.repository.VendaEntityRepository;
 import br.com.senai.p2m02.devinsales.service.*;
 import br.com.senai.p2m02.devinsales.service.exception.RequiredFieldMissingException;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,9 @@ public class ControllerTests {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private UserEntityRepository userEntityRepository;
 
     @MockBean
     private UserEntityService userEntityService;
@@ -2202,5 +2207,125 @@ public class ControllerTests {
                         .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Cria nova venda quando o usuario estiver autenticado")
+    public void deveCriarUmaVendaComIdUserQuandoAutenticado() throws Exception {
+        //gerando token
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json")
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+        Assertions.assertNotNull(token);
+
+        UserEntity vendedor = new UserEntity();
+        vendedor.setId(2l);
+
+        UserEntity user = new UserEntity();
+        user.setId(3l);
+
+        VendaEntity vendaEntity = new VendaEntity();
+        vendaEntity.setId(1l);
+        vendaEntity.setDataVenda(LocalDateTime.now());
+        vendaEntity.setComprador(null);
+        vendaEntity.setVendedor(vendedor);
+
+        when(vendaEntityService.salvarBuy(1l, vendaEntity)).thenReturn(1l);
+        when(userEntityRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+
+        String bodyRequisicao = "{\n" + "    \"idVendedor\":{\"id\":2}\n" +
+                "}";
+
+        //executando controller com o token
+        MvcResult resultPost = mockMvc.perform(MockMvcRequestBuilders.post("/user/{id_user}/buy", 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                        .content(bodyRequisicao)
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Buscar venda com idVendedor")
+    public void deveBuscarVendasComIdVendedorIgualIdUser() throws Exception {
+
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json")
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+        Assertions.assertNotNull(token);
+
+        ProductEntity productEntity1 = new ProductEntity();
+        productEntity1.setId(1);
+
+
+        VendaEntity vendaEntity = new VendaEntity();
+        vendaEntity.setId(1l);
+        vendaEntity.setDataVenda(LocalDateTime.now());
+        vendaEntity.setComprador(null);
+        vendaEntity.setVendedor(null);
+
+        List<VendaEntity> list = List.of(vendaEntity);
+
+        when(vendaEntityService.listarVendas(1l)).thenReturn(list);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/{id_user}/sales", 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    @DisplayName("Buscar venda com idComprador")
+    public void deveBuscarVendasComIdCompradorIgualIdUser() throws Exception {
+
+        String body = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/auth")
+                        .header("Content-Type", "application/json")
+                        .content(body))
+                .andExpect(status().isOk()).andReturn();
+        String response = result.getResponse().getContentAsString();
+        JSONObject json = new JSONObject(response);
+        String token = (String) json.get("token");
+        Assertions.assertNotNull(token);
+
+        UserEntity comprador = new UserEntity();
+        comprador.setId(1l);
+
+        UserEntity vendedor= new UserEntity();
+        vendedor.setId(2l);
+
+        VendaEntity vendaEntity = new VendaEntity();
+        vendaEntity.setId(2l);
+        vendaEntity.setDataVenda(LocalDateTime.now());
+        vendaEntity.setComprador(comprador);
+        vendaEntity.setVendedor(vendedor);
+
+        List<VendaEntity> list = List.of(vendaEntity);
+
+        when(vendaEntityService.listarComprador(2l)).thenReturn(list);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/{id_user}/buy", 1l)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 }
