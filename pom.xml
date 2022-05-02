@@ -105,6 +105,16 @@
                     <mainClass>br.com.senai.p2m02.devinsales.DevinsalesApplication</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
     <repositories>
